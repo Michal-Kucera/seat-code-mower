@@ -12,6 +12,7 @@ import com.seat.code.domain.entity.MowerEntity;
 import com.seat.code.domain.entity.PlateauEntity;
 import com.seat.code.domain.repository.MowerRepository;
 import com.seat.code.domain.repository.PlateauRepository;
+import com.seat.code.service.exception.MowerPositionOutOfRangeException;
 import com.seat.code.service.exception.PlateauNotFoundException;
 import com.seat.code.service.mapper.ServiceLayerMapper;
 import com.seat.code.service.model.Mower;
@@ -38,9 +39,17 @@ class MowerServiceImpl implements MowerService {
         logger.info("Creating mower with name: [{}], starting location: [{}, {}], orientation: [{}] in plateau with ID: [{}]", mower.getName(), mower.getLatitude(), mower.getLongitude(), mower.getOrientation(), mower.getPlateauId());
         final PlateauEntity plateauEntity = plateauRepository.findById(mower.getPlateauId())
             .orElseThrow(() -> new PlateauNotFoundException(format("Plateau with ID: [%s] not found", mower.getPlateauId())));
+        if (!isMowerPositionInPlateauRange(mower, plateauEntity)) {
+            throw new MowerPositionOutOfRangeException("Mower's position is out of range of plateau");
+        }
         final MowerEntity mowerEntity = serviceLayerMapper.mapToMowerEntity(mower, plateauEntity);
         final UUID newMowerId = mowerRepository.save(mowerEntity).getId();
         logger.info("Mower with ID: [{}] has been created", newMowerId);
         return newMowerId;
+    }
+
+    private boolean isMowerPositionInPlateauRange(final Mower mower, final PlateauEntity plateauEntity) {
+        return plateauEntity.getLength() >= mower.getLatitude()
+            && plateauEntity.getWidth() >= mower.getLongitude();
     }
 }

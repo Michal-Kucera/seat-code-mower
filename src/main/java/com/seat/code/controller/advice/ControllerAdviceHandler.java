@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.seat.code.service.exception.MowerPositionOutOfRangeException;
 import com.seat.code.service.exception.PlateauNotFoundException;
 
 @ControllerAdvice
@@ -18,6 +19,12 @@ public class ControllerAdviceHandler {
     @ExceptionHandler(PlateauNotFoundException.class)
     public ResponseEntity<String> handlePlateauNotFoundException(final PlateauNotFoundException e) {
         logger.info("Handling Plateau Not Found exception", e);
+        return badRequest().body(e.getLocalizedMessage());
+    }
+
+    @ExceptionHandler(MowerPositionOutOfRangeException.class)
+    public ResponseEntity<String> handleMowerPositionOutOfRangeException(final MowerPositionOutOfRangeException e) {
+        logger.info("Handling Mower Position Out Of Range exception", e);
         return badRequest().body(e.getLocalizedMessage());
     }
 }

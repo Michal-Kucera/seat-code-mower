@@ -23,6 +23,16 @@ the business logic for each endpoint, while I tried to benefit from TDD methodol
 On the top of our application I put [Open API UI](https://github.com/springfox/springfox) to provide 
 a user-friendly UI for testing our endpoints.
 
+## Business validations
+### Plateau
+- [X] Returns `Bad Request` when trying to create a plateau with invalid data (e.g. size is less than 1x1, name length is less than 1 character)
+
+### Mower
+- [X] Returns `Bad Request` when trying to create a mower with invalid data (e.g. starting position is not filled up, starting position latitude or longitude is less than 1)
+- [x] Returns `Bad Request` when trying to create a mower for a non-existing plateau ID
+- [x] Returns `Bad Request` when trying to create a mower which has a starting position out of range of plateau's size
+- [ ] Returns `Bad Request` when trying to create a mower which has the exactly same position as an already existing mower at targeting plateau
+
 ## Database
 As we want to store states of plateaus as well as mowers between each endpoint's execution, it's been decided to use
 an H2 in-memory database for this purpose. This decision keeps our options open and enables us to make the non-in-memory

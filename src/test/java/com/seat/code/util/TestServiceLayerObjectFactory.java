@@ -27,12 +27,16 @@ public class TestServiceLayerObjectFactory {
     }
 
     public static Mower buildMower() {
+        return buildMower(5, 5);
+    }
+
+    public static Mower buildMower(final Integer latitude, final Integer longitude) {
         final Mower mower = new Mower();
         mower.setId(UUID.randomUUID());
         mower.setName("Mower Nr. 1");
         mower.setPlateauId(UUID.randomUUID());
-        mower.setLatitude(11);
-        mower.setLongitude(5);
+        mower.setLatitude(latitude);
+        mower.setLongitude(longitude);
         mower.setOrientation(SOUTH);
         return mower;
     }

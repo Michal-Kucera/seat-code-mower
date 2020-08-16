@@ -157,8 +157,8 @@ class MowersApiIT {
         final PlateauEntity storedPlateauEntity = buildPlateauEntity();
         final MowerEntity storedMowerEntity = buildMowerEntity(storedPlateauEntity);
 
-        when(mowerRepository.save(any(MowerEntity.class))).thenReturn(storedMowerEntity);
         when(plateauRepository.findById(storedPlateauEntity.getId())).thenReturn(Optional.of(storedPlateauEntity));
+        when(mowerRepository.save(any(MowerEntity.class))).thenReturn(storedMowerEntity);
 
         given()
             .contentType(APPLICATION_JSON_VALUE)
@@ -193,8 +193,8 @@ class MowersApiIT {
             .build(storedPlateauEntity.getId(), storedMowerEntity.getId())
             .toString();
 
-        when(mowerRepository.save(any(MowerEntity.class))).thenReturn(storedMowerEntity);
         when(plateauRepository.findById(storedPlateauEntity.getId())).thenReturn(Optional.of(storedPlateauEntity));
+        when(mowerRepository.save(any(MowerEntity.class))).thenReturn(storedMowerEntity);
 
         given()
             .contentType(APPLICATION_JSON_VALUE)
@@ -213,7 +213,7 @@ class MowersApiIT {
     }
 
     @Test
-    void createMower_shouldNotStoreMower_whenReceivedValidMowerRequestAndPlateauNotFoundInDatabase() {
+    void createMower_shouldNotStoreMowerAdReturnBadRequest_whenReceivedValidMowerRequestAndPlateauNotFoundInDatabase() {
         final UUID plateauId = UUID.randomUUID();
         final Mower mowerRequest = buildMower();
 
@@ -235,23 +235,50 @@ class MowersApiIT {
     }
 
     @Test
-    void createMower_shouldReturnBadRequest_whenReceivedValidMowerRequestAndPlateauNotFoundInDatabase() {
-        final UUID plateauId = UUID.randomUUID();
+    void createMower_shouldNotStoreMowerAndReturnBadRequest_whenReceivedValidMowerRequestAndPlateauExistsInDatabaseAndMowerHasInvalidLatitudePositionAgainstToPlateau() {
+        final PlateauEntity storedPlateauEntity = buildPlateauEntity();
         final Mower mowerRequest = buildMower();
+        mowerRequest.getPosition().setLatitude(storedPlateauEntity.getLength() + 1);
+        mowerRequest.getPosition().setLongitude(storedPlateauEntity.getWidth());
 
-        when(plateauRepository.findById(plateauId)).thenReturn(Optional.empty());
+        when(plateauRepository.findById(storedPlateauEntity.getId())).thenReturn(Optional.of(storedPlateauEntity));
 
         given()
             .contentType(APPLICATION_JSON_VALUE)
             .and().body(mowerRequest)
             .and().log().all()
             .when()
-            .post(CREATE_MOWER_RESOURCE_PATH, plateauId)
+            .post(CREATE_MOWER_RESOURCE_PATH, storedPlateauEntity.getId())
             .then()
             .log().all()
             .and().statusCode(BAD_REQUEST.value());
 
-        verify(plateauRepository).findById(plateauId);
+        verify(plateauRepository).findById(storedPlateauEntity.getId());
         verifyNoMoreInteractions(plateauRepository);
+        verifyNoInteractions(mowerRepository);
+    }
+
+    @Test
+    void createMower_shouldNotStoreMowerAndReturnBadRequest_whenReceivedValidMowerRequestAndPlateauExistsInDatabaseAndMowerHasInvalidLongitudePositionAgainstToPlateau() {
+        final PlateauEntity storedPlateauEntity = buildPlateauEntity();
+        final Mower mowerRequest = buildMower();
+        mowerRequest.getPosition().setLatitude(storedPlateauEntity.getLength());
+        mowerRequest.getPosition().setLongitude(storedPlateauEntity.getWidth() + 1);
+
+        when(plateauRepository.findById(storedPlateauEntity.getId())).thenReturn(Optional.of(storedPlateauEntity));
+
+        given()
+            .contentType(APPLICATION_JSON_VALUE)
+            .and().body(mowerRequest)
+            .and().log().all()
+            .when()
+            .post(CREATE_MOWER_RESOURCE_PATH, storedPlateauEntity.getId())
+            .then()
+            .log().all()
+            .and().statusCode(BAD_REQUEST.value());
+
+        verify(plateauRepository).findById(storedPlateauEntity.getId());
+        verifyNoMoreInteractions(plateauRepository);
+        verifyNoInteractions(mowerRepository);
     }
 }

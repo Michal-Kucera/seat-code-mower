@@ -12,9 +12,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -23,6 +27,7 @@ import com.seat.code.domain.entity.MowerEntity;
 import com.seat.code.domain.entity.PlateauEntity;
 import com.seat.code.domain.repository.MowerRepository;
 import com.seat.code.domain.repository.PlateauRepository;
+import com.seat.code.service.exception.MowerPositionOutOfRangeException;
 import com.seat.code.service.exception.PlateauNotFoundException;
 import com.seat.code.service.mapper.ServiceLayerMapper;
 import com.seat.code.service.model.Mower;
@@ -42,10 +47,14 @@ class MowerServiceImplTest {
     @InjectMocks
     private MowerServiceImpl underTest;
 
-    @Test
-    void createMower_shouldStoreMowerIntoDatabase_whenPlateauFoundInDatabase() {
-        final Mower mower = buildMower();
-        final PlateauEntity plateauEntity = buildPlateauEntity();
+    @ParameterizedTest
+    @MethodSource("getPlateauAndMowerPositionsForMowerPositionNotOutOfRangeTest")
+    void createMower_shouldStoreMowerIntoDatabase_whenPlateauFoundInDatabaseAndPositionIsNotOutOfRange(final Integer plateauLength,
+                                                                                                       final Integer plateauWidth,
+                                                                                                       final Integer mowerLatitude,
+                                                                                                       final Integer mowerLongitude) {
+        final Mower mower = buildMower(mowerLatitude, mowerLongitude);
+        final PlateauEntity plateauEntity = buildPlateauEntity(plateauLength, plateauWidth);
         final MowerEntity mowerEntityToStore = buildMowerEntity(plateauEntity);
         final MowerEntity storedMowerEntity = buildMowerEntity(plateauEntity);
 
@@ -94,5 +103,45 @@ class MowerServiceImplTest {
         verify(plateauRepository).findById(mower.getPlateauId());
         verifyNoMoreInteractions(plateauRepository);
         verifyNoInteractions(serviceLayerMapper, mowerRepository);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getPlateauAndMowerPositionsForMowerPositionOutOfRangeExceptionTest")
+    void createMower_shouldThrowMowerPositionOutOfRangeException_whenPlateauFoundInDatabaseButMowerIsOutOfRange(final Integer plateauLength,
+                                                                                                                final Integer plateauWidth,
+                                                                                                                final Integer mowerLatitude,
+                                                                                                                final Integer mowerLongitude) {
+        final Mower mower = buildMower(mowerLatitude, mowerLongitude);
+        final PlateauEntity plateauEntity = buildPlateauEntity(plateauLength, plateauWidth);
+
+        when(plateauRepository.findById(mower.getPlateauId())).thenReturn(Optional.of(plateauEntity));
+
+        assertThatThrownBy(() -> underTest.createMower(mower))
+            .isInstanceOf(MowerPositionOutOfRangeException.class)
+            .hasMessage("Mower's position is out of range of plateau");
+
+        verify(plateauRepository).findById(mower.getPlateauId());
+        verifyNoMoreInteractions(plateauRepository);
+        verifyNoInteractions(serviceLayerMapper, mowerRepository);
+    }
+
+    private static Stream<Arguments> getPlateauAndMowerPositionsForMowerPositionNotOutOfRangeTest() {
+        return Stream.of(buildPlateauAndMowerPositionArgument(5, 5, 5, 5),
+            buildPlateauAndMowerPositionArgument(5, 5, 3, 3),
+            buildPlateauAndMowerPositionArgument(3, 5, 3, 5),
+            buildPlateauAndMowerPositionArgument(5, 3, 5, 3));
+    }
+
+    private static Stream<Arguments> getPlateauAndMowerPositionsForMowerPositionOutOfRangeExceptionTest() {
+        return Stream.of(buildPlateauAndMowerPositionArgument(5, 3, 6, 3),
+            buildPlateauAndMowerPositionArgument(5, 3, 5, 4),
+            buildPlateauAndMowerPositionArgument(5, 3, 6, 4));
+    }
+
+    private static Arguments buildPlateauAndMowerPositionArgument(final int plateauLength,
+                                                                  final int plateauWidth,
+                                                                  final int mowerLatitude,
+                                                                  final int mowerLongitude) {
+        return Arguments.of(plateauLength, plateauWidth, mowerLatitude, mowerLongitude);
     }
 }

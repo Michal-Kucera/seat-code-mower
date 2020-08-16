@@ -14,10 +14,14 @@ public class TestDomainLayerObjectFactory {
     }
 
     public static PlateauEntity buildPlateauEntity() {
+        return buildPlateauEntity(5, 5);
+    }
+
+    public static PlateauEntity buildPlateauEntity(final Integer length, final Integer width) {
         final PlateauEntity plateau = new PlateauEntity();
         plateau.setId(UUID.randomUUID());
-        plateau.setLength(5);
-        plateau.setWidth(5);
+        plateau.setLength(length);
+        plateau.setWidth(width);
         plateau.setName("SEAT Martorell Factory");
         plateau.getMowers().add(buildMowerEntity(plateau));
         plateau.getMowers().add(buildMowerEntity(plateau));

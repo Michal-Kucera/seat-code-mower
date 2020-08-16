@@ -39,7 +39,8 @@ dependencies {
 
     testCompile 'org.springframework.boot:spring-boot-starter-test' exclude group: 'org.junit.vintage'
     testCompile(
-            'io.rest-assured:rest-assured'
+            'io.rest-assured:rest-assured',
+            'org.junit.jupiter:junit-jupiter-params'
     )
 }
 
