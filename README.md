@@ -1,6 +1,6 @@
 # seat-code-mower
-> This repository contains code for solving the technical challenge for SEAT:CODE's Backend Developer position.
-> Please check out [this document](SEAT_CODE Backend Code Challenge.pdf) for more info.
+This repository contains code for solving the technical challenge for SEAT:CODE's Backend Developer position.
+Please check out [this document](SEAT_CODE Backend Code Challenge.pdf) for more info.
 
 ## My thoughts on the challenge
 I found out that there is a couple of operations needed to accomplish our goal:
@@ -15,6 +15,10 @@ a fancy REST API" thus I transformed the requirements into an Open API specifica
 
 Once I had an API specification ready, I used [OpenAPI Generator Gradle Plugin](https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator-gradle-plugin)
 to generate all the Java stubs around (`generateOpenApiDataModel` Gradle task in [build.gradle](build.gradle) file is responsible for generating API data model in [build/generated/sources/open-api/java](build/generated/sources/open-api/java) directory).
+
+As a next step I started implementing the business logic for each endpoint, while I tried to benefit from TDD metodology.
+
+On the top of our application I put [Open API UI](https://github.com/springfox/springfox) to provide a user-friendly UI for testing our endpoints.
 
 ## Run instructions
 > For running this application we will use Gradle in version `6.6` and its wrapper.
@@ -34,11 +38,15 @@ to generate all the Java stubs around (`generateOpenApiDataModel` Gradle task in
     ./gradlew -stop
     ```
 
+## Testing endpoints via Open API UI
+Once the application is up and running, we can access the Open API UI [here](http://localhost:8080/swagger-ui/index.html) 
+and test our endpoints in a super easy way.
+
 ## Code formatting
-> While developing this application, I used IntelliJ IDEA and its useful plugin called [Save Actions](https://plugins.jetbrains.com/plugin/7642-save-actions).
->
-> This plugin helps us keep the code clean and consistent by performing automatic code formatting, 
-> according to the rules defined in [saveactions_settings.xml](.idea/saveactions_settings.xml) file.
-> 
-> To use benefits of this plugin you have to install `Save Actions` plugin from `Marketplace` 
-> and restart your IDE to load the plugin's configuration.
+While developing this application, I used IntelliJ IDEA and its useful plugin called [Save Actions](https://plugins.jetbrains.com/plugin/7642-save-actions).
+
+This plugin helps us keep the code clean and consistent by performing automatic code formatting, 
+according to the rules defined in [saveactions_settings.xml](.idea/saveactions_settings.xml) file.
+
+To use benefits of this plugin you have to install `Save Actions` plugin from `Marketplace` 
+and restart your IDE to load the plugin's configuration.
