@@ -10,8 +10,6 @@
 generated*
 out/
 *.iml
-gradlew
-gradlew.bat
 
 # Exclude the content of .idea folder
 .idea/*
