@@ -1,6 +1,7 @@
 package com.seat.code.service.mapper;
 
 import static com.seat.code.util.TestDomainLayerObjectFactory.buildPlateauEntity;
+import static com.seat.code.util.TestServiceLayerObjectFactory.buildMower;
 import static com.seat.code.util.TestServiceLayerObjectFactory.buildPlateau;
 
 import java.util.ArrayList;
@@ -10,10 +11,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.seat.code.asserts.AssertMowerEntity;
 import com.seat.code.asserts.AssertPlateau;
 import com.seat.code.asserts.AssertPlateauEntity;
 import com.seat.code.domain.entity.MowerEntity;
+import com.seat.code.domain.entity.MowerEntityOrientation;
 import com.seat.code.domain.entity.PlateauEntity;
+import com.seat.code.service.model.Mower;
 import com.seat.code.service.model.Plateau;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,5 +60,23 @@ class ServiceLayerMapperTest {
             .hasLength(plateau.getLength())
             .hasWidth(plateau.getWidth())
             .hasNoMowers();
+    }
+
+    @Test
+    void mapToMowerEntity_shouldMapMowerAndPlateauEntityIntoMowerEntity() {
+        final Mower mower = buildMower();
+        final PlateauEntity plateauEntity = buildPlateauEntity();
+
+        final MowerEntity mowerEntity = underTest.mapToMowerEntity(mower, plateauEntity);
+
+        AssertMowerEntity.assertThat(mowerEntity)
+            .isNotNull()
+            .hasNullId()
+            .hasNullVersion()
+            .hasName(mower.getName())
+            .hasPlateau(plateauEntity)
+            .hasLatitude(mower.getLatitude())
+            .hasLongitude(mower.getLongitude())
+            .hasOrientation(MowerEntityOrientation.valueOf(mower.getOrientation().name()));
     }
 }

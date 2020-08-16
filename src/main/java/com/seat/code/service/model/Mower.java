@@ -6,7 +6,7 @@ public class Mower {
 
     private UUID id;
     private String name;
-    private Plateau plateau;
+    private UUID plateauId;
     private Integer latitude;
     private Integer longitude;
     private MowerOrientation orientation;
@@ -27,12 +27,12 @@ public class Mower {
         this.name = name;
     }
 
-    public Plateau getPlateau() {
-        return plateau;
+    public UUID getPlateauId() {
+        return plateauId;
     }
 
-    public void setPlateau(final Plateau plateau) {
-        this.plateau = plateau;
+    public void setPlateauId(final UUID plateauId) {
+        this.plateauId = plateauId;
     }
 
     public Integer getLatitude() {

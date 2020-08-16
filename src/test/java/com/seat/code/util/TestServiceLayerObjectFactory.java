@@ -26,11 +26,11 @@ public class TestServiceLayerObjectFactory {
         return plateau;
     }
 
-    public static Mower buildMower(final Plateau plateau) {
+    public static Mower buildMower() {
         final Mower mower = new Mower();
         mower.setId(UUID.randomUUID());
         mower.setName("Mower Nr. 1");
-        mower.setPlateau(plateau);
+        mower.setPlateauId(UUID.randomUUID());
         mower.setLatitude(11);
         mower.setLongitude(5);
         mower.setOrientation(SOUTH);

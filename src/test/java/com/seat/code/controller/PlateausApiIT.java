@@ -176,7 +176,7 @@ class PlateausApiIT {
     void getPlateau_shouldReturnPlateauWith200HttpCode_whenRequestedPlateauFoundInDatabase() {
         final PlateauEntity storedPlateauEntity = buildPlateauEntity();
 
-        when(plateauRepository.findById(storedPlateauEntity.getId())).thenReturn(Optional.ofNullable(storedPlateauEntity));
+        when(plateauRepository.findById(storedPlateauEntity.getId())).thenReturn(Optional.of(storedPlateauEntity));
 
         given()
             .log().all()

@@ -27,7 +27,7 @@ public class TestDomainLayerObjectFactory {
         return plateau;
     }
 
-    private static MowerEntity buildMowerEntity(final PlateauEntity plateauEntity) {
+    public static MowerEntity buildMowerEntity(final PlateauEntity plateauEntity) {
         final MowerEntity mowerEntity = new MowerEntity();
         mowerEntity.setName("Mower Nr. 1");
         mowerEntity.setPlateau(plateauEntity);
