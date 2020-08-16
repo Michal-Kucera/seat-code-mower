@@ -1,0 +1,12 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+        maven {
+            url 'http://repo.spring.io/plugins-release/'
+        }
+    }
+}
+
+rootProject.name = 'seat-code-mower'
