@@ -2,7 +2,6 @@ package com.seat.code.service.model;
 
 import static java.util.Objects.isNull;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -10,7 +9,6 @@ import java.util.UUID;
 public class Plateau {
 
     private UUID id;
-    private LocalDateTime createdDateTime;
     private String name;
     private Integer length;
     private Integer width;
@@ -22,14 +20,6 @@ public class Plateau {
 
     public void setId(final UUID id) {
         this.id = id;
-    }
-
-    public LocalDateTime getCreatedDateTime() {
-        return createdDateTime;
-    }
-
-    public void setCreatedDateTime(final LocalDateTime createdDateTime) {
-        this.createdDateTime = createdDateTime;
     }
 
     public String getName() {

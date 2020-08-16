@@ -1,6 +1,7 @@
 package com.seat.code.util;
 
-import java.time.LocalDateTime;
+import static com.seat.code.domain.entity.MowerEntityOrientation.NORTH;
+
 import java.util.UUID;
 
 import com.seat.code.domain.entity.MowerEntity;
@@ -15,7 +16,6 @@ public class TestDomainLayerObjectFactory {
     public static PlateauEntity buildPlateauEntity() {
         final PlateauEntity plateau = new PlateauEntity();
         plateau.setId(UUID.randomUUID());
-        plateau.setCreatedDateTime(LocalDateTime.now());
         plateau.setLength(5);
         plateau.setWidth(5);
         plateau.setName("SEAT Martorell Factory");
@@ -23,6 +23,7 @@ public class TestDomainLayerObjectFactory {
         plateau.getMowers().add(buildMowerEntity(plateau));
         plateau.getMowers().add(buildMowerEntity(plateau));
         plateau.getMowers().add(buildMowerEntity(plateau));
+        plateau.setVersion(1);
         return plateau;
     }
 
@@ -31,7 +32,10 @@ public class TestDomainLayerObjectFactory {
         mowerEntity.setName("Mower Nr. 1");
         mowerEntity.setPlateau(plateauEntity);
         mowerEntity.setId(UUID.randomUUID());
-        mowerEntity.setCreatedDateTime(LocalDateTime.now());
+        mowerEntity.setLatitude(11);
+        mowerEntity.setLongitude(5);
+        mowerEntity.setOrientation(NORTH);
+        mowerEntity.setVersion(1);
         return mowerEntity;
     }
 }

@@ -1,21 +1,17 @@
 package com.seat.code.domain.entity;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import javax.persistence.Column;
-import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.GenericGenerator;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
 public class BaseEntity implements Serializable {
 
     @Id
@@ -27,9 +23,9 @@ public class BaseEntity implements Serializable {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @CreatedDate
-    @Column(name = "created_date_time", updatable = false, nullable = false)
-    private LocalDateTime createdDateTime;
+    @Version
+    @Column(name = "version")
+    private Integer version;
 
     public UUID getId() {
         return id;
@@ -39,11 +35,11 @@ public class BaseEntity implements Serializable {
         this.id = id;
     }
 
-    public LocalDateTime getCreatedDateTime() {
-        return createdDateTime;
+    public Integer getVersion() {
+        return version;
     }
 
-    public void setCreatedDateTime(final LocalDateTime createdDateTime) {
-        this.createdDateTime = createdDateTime;
+    public void setVersion(final Integer version) {
+        this.version = version;
     }
 }

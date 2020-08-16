@@ -141,7 +141,6 @@ class PlateausApiIT {
         AssertPlateauEntity.assertThat(plateauEntityArgumentCaptor)
             .isNotNull()
             .hasNullId()
-            .hasNullCreatedDateTime()
             .hasName(createPlateauRequest.getName())
             .hasLength(createPlateauRequest.getSize().getLength())
             .hasWidth(createPlateauRequest.getSize().getWidth())

@@ -32,7 +32,6 @@ class ControllerLayerMapperTest {
         AssertPlateau.assertThat(plateau)
             .isNotNull()
             .hasNullId()
-            .hasNullCreatedDateTime()
             .hasName(rectangularPlateau.getName())
             .hasLength(rectangularPlateau.getSize().getLength())
             .hasWidth(rectangularPlateau.getSize().getWidth())

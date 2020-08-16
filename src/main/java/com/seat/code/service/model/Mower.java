@@ -1,19 +1,15 @@
 package com.seat.code.service.model;
 
-import static java.util.Objects.isNull;
-
-import java.time.LocalDateTime;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.UUID;
 
 public class Mower {
 
     private UUID id;
-    private LocalDateTime createdDateTime;
     private String name;
     private Plateau plateau;
-    private SortedSet<MowerPosition> positions;
+    private Integer latitude;
+    private Integer longitude;
+    private MowerOrientation orientation;
 
     public UUID getId() {
         return id;
@@ -21,14 +17,6 @@ public class Mower {
 
     public void setId(final UUID id) {
         this.id = id;
-    }
-
-    public LocalDateTime getCreatedDateTime() {
-        return createdDateTime;
-    }
-
-    public void setCreatedDateTime(final LocalDateTime createdDateTime) {
-        this.createdDateTime = createdDateTime;
     }
 
     public String getName() {
@@ -47,11 +35,27 @@ public class Mower {
         this.plateau = plateau;
     }
 
-    public SortedSet<MowerPosition> getPositions() {
-        if (isNull(positions)) {
-            positions = new TreeSet<>();
-        }
+    public Integer getLatitude() {
+        return latitude;
+    }
 
-        return positions;
+    public void setLatitude(final Integer latitude) {
+        this.latitude = latitude;
+    }
+
+    public Integer getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(final Integer longitude) {
+        this.longitude = longitude;
+    }
+
+    public MowerOrientation getOrientation() {
+        return orientation;
+    }
+
+    public void setOrientation(final MowerOrientation orientation) {
+        this.orientation = orientation;
     }
 }

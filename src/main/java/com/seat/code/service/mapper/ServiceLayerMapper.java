@@ -15,7 +15,6 @@ public class ServiceLayerMapper {
         plateau.setLength(plateauEntity.getLength());
         plateau.setWidth(plateauEntity.getWidth());
         plateau.setId(plateauEntity.getId());
-        plateau.setCreatedDateTime(plateauEntity.getCreatedDateTime());
         plateauEntity.getMowers().stream()
             .map(BaseEntity::getId)
             .forEach(plateau.getMowerIds()::add);
@@ -28,7 +27,6 @@ public class ServiceLayerMapper {
         plateauEntity.setLength(plateau.getLength());
         plateauEntity.setWidth(plateau.getWidth());
         plateauEntity.setId(plateau.getId());
-        plateauEntity.setCreatedDateTime(plateau.getCreatedDateTime());
         return plateauEntity;
     }
 }

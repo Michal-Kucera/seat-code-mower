@@ -1,6 +1,5 @@
 package com.seat.code.asserts;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.assertj.core.api.AbstractAssert;
@@ -23,11 +22,6 @@ public class AssertPlateauEntity extends AbstractAssert<AssertPlateauEntity, Pla
         return assertThat(argumentCaptor.getValue());
     }
 
-    public AssertPlateauEntity hasNotNullId() {
-        Assertions.assertThat(actual.getId()).isNotNull();
-        return this;
-    }
-
     public AssertPlateauEntity hasNullId() {
         Assertions.assertThat(actual.getId()).isNull();
         return this;
@@ -35,21 +29,6 @@ public class AssertPlateauEntity extends AbstractAssert<AssertPlateauEntity, Pla
 
     public AssertPlateauEntity hasId(final UUID expectedId) {
         Assertions.assertThat(actual.getId()).isEqualTo(expectedId);
-        return this;
-    }
-
-    public AssertPlateauEntity hasNotNullCreatedDateTime() {
-        Assertions.assertThat(actual.getCreatedDateTime()).isNotNull();
-        return this;
-    }
-
-    public AssertPlateauEntity hasNullCreatedDateTime() {
-        Assertions.assertThat(actual.getCreatedDateTime()).isNull();
-        return this;
-    }
-
-    public AssertPlateauEntity hasCreatedDateTime(final LocalDateTime expectedCreatedDateTime) {
-        Assertions.assertThat(actual.getCreatedDateTime()).isEqualTo(expectedCreatedDateTime);
         return this;
     }
 
