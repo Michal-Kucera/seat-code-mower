@@ -1,0 +1,318 @@
+openapi: 3.0.3
+
+info:
+  version: '1.0.0'
+  title: Mower API
+  description: 'Mower API for Seat:Code challenge'
+  contact:
+    name: IT Support
+    email: karolkokucera@gmail.com
+
+servers:
+  - url: 'http>//localhost:8080'
+    description: Localhost server
+
+tags:
+  - name: Mowers
+    description: Mowers collection
+  - name: Plateaus
+    description: Plateaus collection
+
+paths:
+  /v1/plateaus:
+    x-summary: Plateaus collection
+    post:
+      operationId: createPlateau
+      tags:
+        - Plateaus
+      summary: Creates a new plateau and returns location header
+      description: Creates a new plateau and returns location header
+      requestBody:
+        $ref: '#/components/requestBodies/CreatePlateauRequestBody'
+      responses:
+        '201':
+          $ref: '#/components/responses/CreatePlateauResponse'
+
+  /v1/plateaus/{plateauId}:
+    x-summary: Plateaus collection
+    parameters:
+        - $ref: '#/components/parameters/PlateauIdPathParameter'
+    get:
+      operationId: getPlateau
+      tags:
+        - Plateaus
+      summary: Returns info about a specific plateau
+      description: Returns info about a specific plateau
+      responses:
+        '200':
+          $ref: '#/components/responses/GetPlateauResponse'
+
+  /v1/plateaus/{plateauId}/mowers:
+    x-summary: Mowers collection
+    parameters:
+      - $ref: '#/components/parameters/PlateauIdPathParameter'
+    post:
+      operationId: createMower
+      tags:
+        - Mowers
+      summary: Creates a new mower in an existing plateau and returns location header
+      description: Creates a new mower in an existing plateau and returns location header
+      requestBody:
+        $ref: '#/components/requestBodies/CreateMowerRequestBody'
+      responses:
+        '201':
+          $ref: '#/components/responses/CreateMowerResponse'
+
+  /v1/plateaus/{plateauId}/mowers/{mowerId}:
+    x-summary: Mowers collection
+    parameters:
+      - $ref: '#/components/parameters/PlateauIdPathParameter'
+      - $ref: '#/components/parameters/MowerIdPathParameter'
+    get:
+      operationId: getMower
+      tags:
+        - Mowers
+      summary: Returns info about a specific mower
+      description: Returns info about a specific mower
+      responses:
+        '200':
+          $ref: '#/components/responses/GetMowerResponse'
+
+  /v1/plateaus/{plateauId}/mowers/{mowerId}/instructions:
+    x-summary: Mowers instructions collection
+    parameters:
+      - $ref: '#/components/parameters/PlateauIdPathParameter'
+      - $ref: '#/components/parameters/MowerIdPathParameter'
+    post:
+      operationId: applyMowerInstructions
+      tags:
+        - Mowers
+      summary: Apply instructions to a specific mower
+      description: Apply instructions to a specific mower
+      requestBody:
+        $ref: '#/components/requestBodies/MowerInstructionsRequestBody'
+      responses:
+        '204':
+          $ref: '#/components/responses/MowerInstructionsAppliedResponse'
+
+components:
+  schemas:
+    Id:
+      description: ID of an object
+      type: string
+      format: uuid
+      x-example: '54712028-65a4-49fe-bd21-26a78b2d0ffa'
+
+    RectangularPlateau:
+      description: Rectangular plateau
+      type: object
+      required:
+        - name
+        - size
+      properties:
+        name:
+          description: Name of plateau
+          type: string
+          minLength: 1
+          example: SEAT Martorell Factory
+        size:
+          $ref: '#/components/schemas/RectangularPlateauSize'
+
+    RectangularPlateauDetail:
+      allOf:
+        - $ref: '#/components/schemas/RectangularPlateau'
+        - type: object
+          description: Rectangular plateau detail
+          required:
+            - mowers
+          properties:
+            mowers:
+              description: IDs of mowers operating in this specific plateau
+              type: array
+              items:
+                $ref: '#/components/schemas/Id'
+              example:
+                - '53ffd057-adec-42d0-bc47-17d0a40cc3dc'
+                - 'd341c556-dca2-42de-a189-d9165c575f4b'
+                - 'a04d9db3-0a4e-470b-ac65-c833583fa31c'
+
+    RectangularPlateauSize:
+      description: Rectangular plateau size
+      type: object
+      required:
+        - length
+        - width
+      properties:
+        length:
+          description: Length of plateau
+          type: integer
+          format: int32
+          minimum: 1
+          example: 5
+        width:
+          description: Width of plateau
+          type: integer
+          format: int32
+          minimum: 1
+          example: 5
+
+    Mower:
+      description: Mower
+      type: object
+      required:
+        - name
+        - position
+      properties:
+        name:
+          description: Name of mower
+          type: string
+          minLength: 1
+          example: Mower Nr. 1
+        position:
+          $ref: '#/components/schemas/MowerPosition'
+
+    MowerPosition:
+      description: Mower position in plateau
+      type: object
+      required:
+        - latitude
+        - longitude
+        - orientation
+      properties:
+        latitude:
+          description: Latitude of mower
+          type: integer
+          format: int32
+          minimum: 1
+          example: 1
+        longitude:
+          description: Longitude of mower
+          type: integer
+          format: int32
+          minimum: 1
+          example: 2
+        orientation:
+          $ref: '#/components/schemas/MowerOrientation'
+
+    MowerOrientation:
+      description: Mower direction
+      type: string
+      enum:
+        - N
+        - S
+        - E
+        - W
+      x-enum-varnames:
+        - NORTH
+        - SOUTH
+        - EAST
+        - WEST
+      example: N
+
+    MowerInstruction:
+      description: Mower instruction
+      type: string
+      enum:
+        - L
+        - R
+        - M
+      x-enum-varnames:
+        - SPIN_LEFT
+        - SPIN_RIGHT
+        - MOVE_FORWARD
+      example: L
+
+    MowerInstructions:
+      description: Mower instructions
+      type: array
+      items:
+        $ref: '#/components/schemas/MowerInstruction'
+      minItems: 1
+      example:
+        - L
+        - M
+        - L
+        - M
+        - L
+        - M
+        - L
+        - M
+        - M
+
+  requestBodies:
+    CreatePlateauRequestBody:
+      description: Create plateau request body
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RectangularPlateau'
+
+    CreateMowerRequestBody:
+      description: Create mower request body
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Mower'
+
+    MowerInstructionsRequestBody:
+      description: Mower instructions request body
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MowerInstructions'
+
+  parameters:
+    PlateauIdPathParameter:
+      in: path
+      name: plateauId
+      description: Plateau's ID
+      required: true
+      schema:
+        $ref: '#/components/schemas/Id'
+      x-example: '54712028-65a4-49fe-bd21-26a78b2d0ffa'
+
+    MowerIdPathParameter:
+      in: path
+      name: mowerId
+      description: Mower's ID
+      required: true
+      schema:
+        $ref: '#/components/schemas/Id'
+      x-example: '7e769732-f9f8-4609-aa92-bbbb1318a2a3'
+
+  responses:
+    CreatePlateauResponse:
+      description: Plateau has been successfully created
+      headers:
+        Location:
+          description: Location header
+          schema:
+            type: string
+
+    GetPlateauResponse:
+      description: Plateau has been found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RectangularPlateauDetail'
+
+    CreateMowerResponse:
+      description: Mower has been successfully created
+      headers:
+        Location:
+          description: Location header
+          schema:
+            type: string
+
+    GetMowerResponse:
+      description: Mower has been found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Mower'
+
+    MowerInstructionsAppliedResponse:
+      description: Instructions have been applied to mower

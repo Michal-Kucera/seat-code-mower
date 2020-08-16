@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '2.3.3.RELEASE'
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'org.openapi.generator' version '4.3.1'
 }
 
 repositories {
@@ -10,12 +11,19 @@ repositories {
 }
 
 ext {
+    SWAGGER_ANNOTATIONS_VERSION = '1.6.2'
+    JACKSON_DATABIND_NULLABLE_VERSION = '0.2.1'
+
+    OPEN_API_GENERATOR_GENERATED_FOLDER = "$buildDir/generated/sources/open-api"
+    OPEN_API_GENERATOR_SPECS_FOLDER = "$rootDir/etc/open-api/specs"
 }
 
 dependencies {
     compile(
             'org.springframework.boot:spring-boot-starter-web',
-            'org.springframework.boot:spring-boot-starter-validation'
+            'org.springframework.boot:spring-boot-starter-validation',
+            "io.swagger:swagger-annotations:$SWAGGER_ANNOTATIONS_VERSION",
+            "org.openapitools:jackson-databind-nullable:$JACKSON_DATABIND_NULLABLE_VERSION"
     )
 
     annotationProcessor(
@@ -33,3 +41,28 @@ bootJar.mainClassName 'com.seat.code.MowerApp'
 test {
     useJUnitPlatform()
 }
+
+sourceSets.main.java.srcDirs += "$OPEN_API_GENERATOR_GENERATED_FOLDER/java"
+task generateOpenApiDataModel(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
+    inputSpec = "$OPEN_API_GENERATOR_SPECS_FOLDER/mower-api.yml".toString()
+    outputDir = "$OPEN_API_GENERATOR_GENERATED_FOLDER".toString()
+    apiPackage = 'com.seat.code.controller'
+    modelPackage = 'com.seat.code.controller.model'
+    generatorName = 'spring'
+    library = 'spring-boot'
+    configOptions = [
+            generateSupportingFiles: 'false',
+            dateLibrary            : 'java8-localdatetime',
+            useTags                : 'true',
+            java8                  : 'true',
+            interfaceOnly          : 'true',
+            skipDefaultInterface   : 'true',
+            serializableModel      : 'true',
+            sourceFolder           : 'java'
+    ]
+    generateModelTests = false
+    generateModelDocumentation = false
+    generateApiTests = false
+    generateApiDocumentation = false
+}
+compileJava.dependsOn generateOpenApiDataModel
