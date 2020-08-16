@@ -1,9 +1,10 @@
 package com.seat.code.domain.entity;
 
+import static java.util.Objects.isNull;
 import static javax.persistence.CascadeType.ALL;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -24,7 +25,7 @@ public class PlateauEntity extends BaseEntity {
     private Integer width;
 
     @OneToMany(cascade = ALL, mappedBy = "plateau")
-    private final Set<MowerEntity> mowers = new HashSet<>();
+    private List<MowerEntity> mowers;
 
     public String getName() {
         return name;
@@ -50,7 +51,11 @@ public class PlateauEntity extends BaseEntity {
         this.width = width;
     }
 
-    public Set<MowerEntity> getMowers() {
+    public List<MowerEntity> getMowers() {
+        if (isNull(mowers)) {
+            mowers = new ArrayList<>();
+        }
+
         return mowers;
     }
 }

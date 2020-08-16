@@ -2,9 +2,12 @@ package com.seat.code.util;
 
 import static com.seat.code.controller.model.MowerOrientation.SOUTH;
 
+import java.util.UUID;
+
 import com.seat.code.controller.model.Mower;
 import com.seat.code.controller.model.MowerPosition;
 import com.seat.code.controller.model.RectangularPlateau;
+import com.seat.code.controller.model.RectangularPlateauDetail;
 import com.seat.code.controller.model.RectangularPlateauSize;
 
 public class TestControllerLayerObjectFactory {
@@ -22,6 +25,21 @@ public class TestControllerLayerObjectFactory {
         rectangularPlateau.setName("SEAT Martorell Factory");
         rectangularPlateau.setSize(rectangularPlateauSize);
         return rectangularPlateau;
+    }
+
+    public static RectangularPlateauDetail buildRectangularPlateauDetail() {
+        final RectangularPlateauSize rectangularPlateauSize = new RectangularPlateauSize();
+        rectangularPlateauSize.setLength(5);
+        rectangularPlateauSize.setWidth(5);
+
+        final RectangularPlateauDetail rectangularPlateauDetail = new RectangularPlateauDetail();
+        rectangularPlateauDetail.setName("SEAT Martorell Factory");
+        rectangularPlateauDetail.setSize(rectangularPlateauSize);
+        rectangularPlateauDetail.getMowers().add(UUID.randomUUID());
+        rectangularPlateauDetail.getMowers().add(UUID.randomUUID());
+        rectangularPlateauDetail.getMowers().add(UUID.randomUUID());
+        rectangularPlateauDetail.getMowers().add(UUID.randomUUID());
+        return rectangularPlateauDetail;
     }
 
     public static Mower buildMower() {

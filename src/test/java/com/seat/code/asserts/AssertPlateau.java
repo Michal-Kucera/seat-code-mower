@@ -1,5 +1,8 @@
 package com.seat.code.asserts;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
 import org.mockito.ArgumentCaptor;
@@ -25,8 +28,18 @@ public class AssertPlateau extends AbstractAssert<AssertPlateau, Plateau> {
         return this;
     }
 
-    public AssertPlateau hasNullCreationDateTime() {
+    public AssertPlateau hasId(final UUID expectedId) {
+        Assertions.assertThat(actual.getId()).isEqualTo(expectedId);
+        return this;
+    }
+
+    public AssertPlateau hasNullCreatedDateTime() {
         Assertions.assertThat(actual.getCreatedDateTime()).isNull();
+        return this;
+    }
+
+    public AssertPlateau hasCreatedDateTime(final LocalDateTime expectedCreatedDateTime) {
+        Assertions.assertThat(actual.getCreatedDateTime()).isEqualTo(expectedCreatedDateTime);
         return this;
     }
 
@@ -46,7 +59,17 @@ public class AssertPlateau extends AbstractAssert<AssertPlateau, Plateau> {
     }
 
     public AssertPlateau hasNoMowers() {
-        Assertions.assertThat(actual.getMowers()).isEmpty();
+        Assertions.assertThat(actual.getMowerIds()).isEmpty();
+        return this;
+    }
+
+    public AssertPlateau hasMowerIdsSize(final int expectedMowerIdsSize) {
+        Assertions.assertThat(actual.getMowerIds()).hasSize(expectedMowerIdsSize);
+        return this;
+    }
+
+    public AssertPlateau hasMowerId(final UUID expectedMowerId) {
+        Assertions.assertThat(actual.getMowerIds()).contains(expectedMowerId);
         return this;
     }
 }

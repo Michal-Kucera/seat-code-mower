@@ -28,6 +28,11 @@ public class AssertPlateauEntity extends AbstractAssert<AssertPlateauEntity, Pla
         return this;
     }
 
+    public AssertPlateauEntity hasNullId() {
+        Assertions.assertThat(actual.getId()).isNull();
+        return this;
+    }
+
     public AssertPlateauEntity hasId(final UUID expectedId) {
         Assertions.assertThat(actual.getId()).isEqualTo(expectedId);
         return this;
@@ -35,6 +40,11 @@ public class AssertPlateauEntity extends AbstractAssert<AssertPlateauEntity, Pla
 
     public AssertPlateauEntity hasNotNullCreatedDateTime() {
         Assertions.assertThat(actual.getCreatedDateTime()).isNotNull();
+        return this;
+    }
+
+    public AssertPlateauEntity hasNullCreatedDateTime() {
+        Assertions.assertThat(actual.getCreatedDateTime()).isNull();
         return this;
     }
 

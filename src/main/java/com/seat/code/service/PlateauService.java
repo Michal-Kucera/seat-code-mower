@@ -7,4 +7,6 @@ import com.seat.code.service.model.Plateau;
 public interface PlateauService {
 
     UUID createPlateau(Plateau plateau);
+
+    Plateau getPlateau(UUID plateauId);
 }

@@ -1,38 +1,42 @@
 package com.seat.code.controller;
 
 import static com.seat.code.util.TestControllerLayerObjectFactory.buildRectangularPlateau;
+import static com.seat.code.util.TestDomainLayerObjectFactory.buildPlateauEntity;
 import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.port;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.seat.code.asserts.AssertPlateauEntity;
 import com.seat.code.controller.model.RectangularPlateau;
-import com.seat.code.domain.entity.BaseEntity;
 import com.seat.code.domain.entity.PlateauEntity;
 import com.seat.code.domain.repository.PlateauRepository;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@Transactional
-@AutoConfigureTestDatabase(replace = Replace.ANY)
 class PlateausApiIT {
 
     private static final String CREATE_PLATEAU_RESOURCE_PATH = "/v1/plateaus";
@@ -41,8 +45,11 @@ class PlateausApiIT {
     @LocalServerPort
     private int serverPort;
 
-    @Autowired
+    @MockBean
     private PlateauRepository plateauRepository;
+
+    @Captor
+    private ArgumentCaptor<PlateauEntity> plateauEntityArgumentCaptor;
 
     @BeforeEach
     void setUp() {
@@ -116,8 +123,9 @@ class PlateausApiIT {
     @Test
     void createPlateau_shouldStorePlateauIntoDatabase_whenReceivedValidPlateauRequest() {
         final RectangularPlateau createPlateauRequest = buildRectangularPlateau();
+        final PlateauEntity storedPlateauEntity = buildPlateauEntity();
 
-        plateauRepository.deleteAll();
+        when(plateauRepository.save(any(PlateauEntity.class))).thenReturn(storedPlateauEntity);
 
         given()
             .contentType(APPLICATION_JSON_VALUE)
@@ -129,23 +137,27 @@ class PlateausApiIT {
             .log().all()
             .and().statusCode(CREATED.value());
 
-        final List<PlateauEntity> plateaus = plateauRepository.findAll();
-        assertThat(plateaus).hasSize(1);
-        AssertPlateauEntity.assertThat(plateaus.get(0))
+        verify(plateauRepository).save(plateauEntityArgumentCaptor.capture());
+        AssertPlateauEntity.assertThat(plateauEntityArgumentCaptor)
             .isNotNull()
-            .hasNotNullId()
-            .hasNotNullCreatedDateTime()
+            .hasNullId()
+            .hasNullCreatedDateTime()
             .hasName(createPlateauRequest.getName())
             .hasLength(createPlateauRequest.getSize().getLength())
             .hasWidth(createPlateauRequest.getSize().getWidth())
             .hasNoMowers();
+        verifyNoMoreInteractions(plateauRepository);
     }
 
     @Test
     void createPlateau_shouldReturn201WithLocationHeader_whenReceivedValidPlateauRequestAndPlateauWasCreated() {
         final RectangularPlateau createPlateauRequest = buildRectangularPlateau();
+        final PlateauEntity storedPlateauEntity = buildPlateauEntity();
+        final String expectedLocationHeaderValue = UriComponentsBuilder.fromUriString(baseURI + ":" + serverPort + GET_PLATEAU_RESOURCE_PATH)
+            .build(storedPlateauEntity.getId())
+            .toString();
 
-        plateauRepository.deleteAll();
+        when(plateauRepository.save(any(PlateauEntity.class))).thenReturn(storedPlateauEntity);
 
         given()
             .contentType(APPLICATION_JSON_VALUE)
@@ -156,19 +168,53 @@ class PlateausApiIT {
             .then()
             .log().all()
             .and().statusCode(CREATED.value())
-            .and().header(LOCATION, getPlateauLocationHeaderValue());
+            .and().header(LOCATION, expectedLocationHeaderValue);
+        verify(plateauRepository).save(any(PlateauEntity.class));
+        verifyNoMoreInteractions(plateauRepository);
     }
 
-    private String getPlateauLocationHeaderValue() {
-        final List<PlateauEntity> plateaus = plateauRepository.findAll();
-        assertThat(plateaus).hasSize(1);
-        final UUID plateauId = plateaus.stream()
-            .findFirst()
-            .map(BaseEntity::getId)
-            .orElse(null);
-        assertThat(plateauId).isNotNull();
-        return UriComponentsBuilder.fromUriString(baseURI + ":" + serverPort + GET_PLATEAU_RESOURCE_PATH)
-            .build(plateauId)
-            .toString();
+    @Test
+    void getPlateau_shouldReturnPlateauWith200HttpCode_whenRequestedPlateauFoundInDatabase() {
+        final PlateauEntity storedPlateauEntity = buildPlateauEntity();
+
+        when(plateauRepository.findById(storedPlateauEntity.getId())).thenReturn(Optional.ofNullable(storedPlateauEntity));
+
+        given()
+            .log().all()
+            .and().accept(APPLICATION_JSON_VALUE)
+            .when()
+            .get(GET_PLATEAU_RESOURCE_PATH, storedPlateauEntity.getId())
+            .then()
+            .log().all()
+            .and().statusCode(OK.value())
+            .and().contentType(APPLICATION_JSON_VALUE)
+            .and().body("name", equalTo(storedPlateauEntity.getName()))
+            .and().body("size.length", equalTo(storedPlateauEntity.getLength()))
+            .and().body("size.width", equalTo(storedPlateauEntity.getWidth()))
+            .and().body("mowers", hasSize(4))
+            .and().body("mowers", containsInAnyOrder(storedPlateauEntity.getMowers().get(0).getId().toString(),
+            storedPlateauEntity.getMowers().get(1).getId().toString(),
+            storedPlateauEntity.getMowers().get(2).getId().toString(),
+            storedPlateauEntity.getMowers().get(3).getId().toString()));
+        verify(plateauRepository).findById(storedPlateauEntity.getId());
+        verifyNoMoreInteractions(plateauRepository);
+    }
+
+    @Test
+    void getPlateau_shouldReturnBadRequest_whenRequestedPlateauNotFoundInDatabase() {
+        final UUID plateauId = UUID.randomUUID();
+
+        when(plateauRepository.findById(plateauId)).thenReturn(Optional.empty());
+
+        given()
+            .log().all()
+            .and().accept(APPLICATION_JSON_VALUE)
+            .when()
+            .get(GET_PLATEAU_RESOURCE_PATH, plateauId)
+            .then()
+            .log().all()
+            .and().statusCode(BAD_REQUEST.value());
+        verify(plateauRepository).findById(plateauId);
+        verifyNoMoreInteractions(plateauRepository);
     }
 }

@@ -3,8 +3,8 @@ package com.seat.code.service.model;
 import static java.util.Objects.isNull;
 
 import java.time.LocalDateTime;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 public class Plateau {
@@ -14,7 +14,7 @@ public class Plateau {
     private String name;
     private Integer length;
     private Integer width;
-    private SortedSet<Mower> mowers;
+    private Set<UUID> mowerIds;
 
     public UUID getId() {
         return id;
@@ -56,11 +56,11 @@ public class Plateau {
         this.width = width;
     }
 
-    public SortedSet<Mower> getMowers() {
-        if (isNull(mowers)) {
-            mowers = new TreeSet<>();
+    public Set<UUID> getMowerIds() {
+        if (isNull(mowerIds)) {
+            mowerIds = new HashSet<>();
         }
 
-        return mowers;
+        return mowerIds;
     }
 }
