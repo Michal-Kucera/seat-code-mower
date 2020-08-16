@@ -2,8 +2,6 @@ package com.seat.code.util;
 
 import static com.seat.code.controller.model.MowerOrientation.SOUTH;
 
-import java.util.UUID;
-
 import com.seat.code.controller.model.Mower;
 import com.seat.code.controller.model.MowerPosition;
 import com.seat.code.controller.model.RectangularPlateau;
@@ -21,14 +19,14 @@ public class TestControllerLayerObjectFactory {
         rectangularPlateauSize.setWidth(5);
 
         final RectangularPlateau rectangularPlateau = new RectangularPlateau();
-        rectangularPlateau.setName("SEAT Martorell Factory " + UUID.randomUUID());
+        rectangularPlateau.setName("SEAT Martorell Factory");
         rectangularPlateau.setSize(rectangularPlateauSize);
         return rectangularPlateau;
     }
 
     public static Mower buildMower() {
         final Mower mower = new Mower();
-        mower.setName("Mower Nr. " + UUID.randomUUID());
+        mower.setName("Mower Nr. 1");
         mower.setPosition(buildMowerPosition());
         return mower;
     }
