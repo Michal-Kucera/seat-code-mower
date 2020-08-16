@@ -7,6 +7,7 @@ import com.seat.code.domain.entity.MowerEntity;
 import com.seat.code.domain.entity.MowerEntityOrientation;
 import com.seat.code.domain.entity.PlateauEntity;
 import com.seat.code.service.model.Mower;
+import com.seat.code.service.model.MowerOrientation;
 import com.seat.code.service.model.Plateau;
 
 @Component
@@ -41,5 +42,16 @@ public class ServiceLayerMapper {
         mowerEntity.setLongitude(mower.getLongitude());
         mowerEntity.setOrientation(MowerEntityOrientation.valueOf(mower.getOrientation().name()));
         return mowerEntity;
+    }
+
+    public Mower mapToMower(final MowerEntity mowerEntity) {
+        final Mower mower = new Mower();
+        mower.setId(mowerEntity.getId());
+        mower.setName(mowerEntity.getName());
+        mower.setPlateauId(mowerEntity.getPlateau().getId());
+        mower.setLatitude(mowerEntity.getLatitude());
+        mower.setLongitude(mowerEntity.getLongitude());
+        mower.setOrientation(MowerOrientation.valueOf(mowerEntity.getOrientation().name()));
+        return mower;
     }
 }

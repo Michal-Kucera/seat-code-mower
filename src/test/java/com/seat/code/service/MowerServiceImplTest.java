@@ -27,6 +27,7 @@ import com.seat.code.domain.entity.MowerEntity;
 import com.seat.code.domain.entity.PlateauEntity;
 import com.seat.code.domain.repository.MowerRepository;
 import com.seat.code.domain.repository.PlateauRepository;
+import com.seat.code.service.exception.MowerNotFoundException;
 import com.seat.code.service.exception.MowerPositionAlreadyTakenException;
 import com.seat.code.service.exception.MowerPositionOutOfRangeException;
 import com.seat.code.service.exception.PlateauNotFoundException;
@@ -145,6 +146,38 @@ class MowerServiceImplTest {
         verify(plateauRepository).findById(mower.getPlateauId());
         verifyNoMoreInteractions(plateauRepository);
         verifyNoInteractions(serviceLayerMapper, mowerRepository);
+    }
+
+    @Test
+    void getMower_shouldReturnMower_whenMowerRelatedToTargetingPlateauFoundInDatabase() {
+        final UUID plateauId = UUID.randomUUID();
+        final UUID mowerId = UUID.randomUUID();
+        final MowerEntity storedMowerEntity = buildMowerEntity();
+        final Mower mower = buildMower();
+
+        when(mowerRepository.findOneByIdAndPlateauId(mowerId, plateauId)).thenReturn(Optional.of(storedMowerEntity));
+        when(serviceLayerMapper.mapToMower(storedMowerEntity)).thenReturn(mower);
+
+        assertThat(underTest.getMower(plateauId, mowerId)).isEqualTo(mower);
+
+        verify(mowerRepository).findOneByIdAndPlateauId(mowerId, plateauId);
+        verify(serviceLayerMapper).mapToMower(storedMowerEntity);
+        verifyNoMoreInteractions(mowerRepository, serviceLayerMapper);
+    }
+
+    @Test
+    void getMower_shouldThrowMowerNotFoundException_whenMowerRelatedToTargetingPlateauNotFoundInDatabase() {
+        final UUID plateauId = UUID.randomUUID();
+        final UUID mowerId = UUID.randomUUID();
+
+        when(mowerRepository.findOneByIdAndPlateauId(mowerId, plateauId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> underTest.getMower(plateauId, mowerId))
+            .isInstanceOf(MowerNotFoundException.class)
+            .hasMessage("Mower with ID: [%s], associated to plateau with ID: [%s] not found", mowerId, plateauId);
+
+        verify(mowerRepository).findOneByIdAndPlateauId(mowerId, plateauId);
+        verifyNoMoreInteractions(mowerRepository, serviceLayerMapper);
     }
 
     private static Stream<Arguments> getPlateauAndMowerPositionsForMowerPositionNotOutOfRangeTest() {

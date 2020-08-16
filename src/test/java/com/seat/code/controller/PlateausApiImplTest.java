@@ -119,7 +119,7 @@ class PlateausApiImplTest {
         final RectangularPlateauDetail rectangularPlateauDetail = buildRectangularPlateauDetail();
 
         when(plateauService.getPlateau(plateauId)).thenReturn(plateau);
-        when(controllerLayerMapper.mapToPlateauDetail(plateau)).thenReturn(rectangularPlateauDetail);
+        when(controllerLayerMapper.mapToPlateauDetailResponse(plateau)).thenReturn(rectangularPlateauDetail);
 
         mockMvc.perform(get(GET_PLATEAU_RESOURCE_PATH, plateauId)
             .accept(APPLICATION_JSON_VALUE))
@@ -135,7 +135,7 @@ class PlateausApiImplTest {
                 rectangularPlateauDetail.getMowers().get(3).toString())));
 
         verify(plateauService).getPlateau(plateauId);
-        verify(controllerLayerMapper).mapToPlateauDetail(plateau);
+        verify(controllerLayerMapper).mapToPlateauDetailResponse(plateau);
         verifyNoMoreInteractions(plateauService, controllerLayerMapper);
     }
 

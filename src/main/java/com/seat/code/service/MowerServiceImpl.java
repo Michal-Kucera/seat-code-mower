@@ -12,6 +12,7 @@ import com.seat.code.domain.entity.MowerEntity;
 import com.seat.code.domain.entity.PlateauEntity;
 import com.seat.code.domain.repository.MowerRepository;
 import com.seat.code.domain.repository.PlateauRepository;
+import com.seat.code.service.exception.MowerNotFoundException;
 import com.seat.code.service.exception.MowerPositionAlreadyTakenException;
 import com.seat.code.service.exception.MowerPositionOutOfRangeException;
 import com.seat.code.service.exception.PlateauNotFoundException;
@@ -50,6 +51,14 @@ class MowerServiceImpl implements MowerService {
         final UUID newMowerId = mowerRepository.save(mowerEntity).getId();
         logger.info("Mower with ID: [{}] has been created", newMowerId);
         return newMowerId;
+    }
+
+    @Override
+    public Mower getMower(final UUID plateauId, final UUID mowerId) {
+        logger.info("Searching for mower with ID: [{}], associated to plateau with ID: [{}] in database", mowerId, plateauId);
+        return mowerRepository.findOneByIdAndPlateauId(mowerId, plateauId)
+            .map(serviceLayerMapper::mapToMower)
+            .orElseThrow(() -> new MowerNotFoundException(format("Mower with ID: [%s], associated to plateau with ID: [%s] not found", mowerId, plateauId)));
     }
 
     private boolean isMowerPositionInPlateauRange(final Mower mower, final PlateauEntity plateauEntity) {

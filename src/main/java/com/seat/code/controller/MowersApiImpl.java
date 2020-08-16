@@ -52,7 +52,9 @@ class MowersApiImpl implements MowersApi {
     @Override
     public ResponseEntity<Mower> getMower(@ApiParam(value = "Plateau's ID", required = true) @PathVariable("plateauId") final UUID plateauId,
                                           @ApiParam(value = "Mower's ID", required = true) @PathVariable("mowerId") final UUID mowerId) {
-        return ok(null);
+        final com.seat.code.service.model.Mower mower = mowerService.getMower(plateauId, mowerId);
+        final Mower mowerResponse = controllerLayerMapper.mapToMowerResponse(mower);
+        return ok(mowerResponse);
     }
 
     @Override

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.seat.code.service.exception.MowerNotFoundException;
 import com.seat.code.service.exception.MowerPositionAlreadyTakenException;
 import com.seat.code.service.exception.MowerPositionOutOfRangeException;
 import com.seat.code.service.exception.PlateauNotFoundException;
@@ -32,6 +33,12 @@ public class ControllerAdviceHandler {
     @ExceptionHandler(MowerPositionAlreadyTakenException.class)
     public ResponseEntity<String> handleMowerPositionAlreadyTakenException(final MowerPositionAlreadyTakenException e) {
         logger.info("Handling Mower Position Already Taken exception", e);
+        return badRequest().body(e.getLocalizedMessage());
+    }
+
+    @ExceptionHandler(MowerNotFoundException.class)
+    public ResponseEntity<String> handleMowerNotFoundException(final MowerNotFoundException e) {
+        logger.info("Handling Mower Not Found exception", e);
         return badRequest().body(e.getLocalizedMessage());
     }
 }

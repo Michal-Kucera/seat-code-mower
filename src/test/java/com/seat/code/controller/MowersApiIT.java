@@ -6,6 +6,7 @@ import static com.seat.code.util.TestDomainLayerObjectFactory.buildPlateauEntity
 import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.port;
+import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -15,6 +16,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.util.Optional;
@@ -31,6 +33,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.seat.code.asserts.AssertMowerEntity;
 import com.seat.code.controller.model.Mower;
+import com.seat.code.controller.model.MowerOrientation;
 import com.seat.code.domain.entity.MowerEntity;
 import com.seat.code.domain.entity.MowerEntityOrientation;
 import com.seat.code.domain.entity.PlateauEntity;
@@ -307,5 +310,47 @@ class MowersApiIT {
         verify(plateauRepository).findById(storedPlateauEntity.getId());
         verifyNoMoreInteractions(plateauRepository);
         verifyNoInteractions(mowerRepository);
+    }
+
+    @Test
+    void getMower_shouldReturnMowerWith200HttpCode_whenRequestedMowerRelatedToRequestedPlateauFoundInDatabase() {
+        final MowerEntity storedMowerEntity = buildMowerEntity();
+
+        when(mowerRepository.findOneByIdAndPlateauId(storedMowerEntity.getId(), storedMowerEntity.getPlateau().getId())).thenReturn(Optional.of(storedMowerEntity));
+
+        given()
+            .log().all()
+            .and().accept(APPLICATION_JSON_VALUE)
+            .when()
+            .get(GET_MOWER_RESOURCE_PATH, storedMowerEntity.getPlateau().getId(), storedMowerEntity.getId())
+            .then()
+            .log().all()
+            .and().statusCode(OK.value())
+            .and().contentType(APPLICATION_JSON_VALUE)
+            .and().body("name", equalTo(storedMowerEntity.getName()))
+            .and().body("position.latitude", equalTo(storedMowerEntity.getLatitude()))
+            .and().body("position.longitude", equalTo(storedMowerEntity.getLongitude()))
+            .and().body("position.orientation", equalTo(MowerOrientation.valueOf(storedMowerEntity.getOrientation().name()).getValue()));
+        verify(mowerRepository).findOneByIdAndPlateauId(storedMowerEntity.getId(), storedMowerEntity.getPlateau().getId());
+        verifyNoMoreInteractions(mowerRepository);
+    }
+
+    @Test
+    void getMower_shouldReturnBadRequest_whenRequestedMowerRelatedToRequestedPlateauNotFoundInDatabase() {
+        final UUID plateauId = UUID.randomUUID();
+        final UUID mowerId = UUID.randomUUID();
+
+        when(mowerRepository.findOneByIdAndPlateauId(mowerId, plateauId)).thenReturn(Optional.empty());
+
+        given()
+            .log().all()
+            .and().accept(APPLICATION_JSON_VALUE)
+            .when()
+            .get(GET_MOWER_RESOURCE_PATH, plateauId, mowerId)
+            .then()
+            .log().all()
+            .and().statusCode(BAD_REQUEST.value());
+        verify(mowerRepository).findOneByIdAndPlateauId(mowerId, plateauId);
+        verifyNoMoreInteractions(mowerRepository);
     }
 }

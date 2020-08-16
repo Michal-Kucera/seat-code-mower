@@ -6,10 +6,11 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 import com.seat.code.controller.model.Mower;
+import com.seat.code.controller.model.MowerOrientation;
+import com.seat.code.controller.model.MowerPosition;
 import com.seat.code.controller.model.RectangularPlateau;
 import com.seat.code.controller.model.RectangularPlateauDetail;
 import com.seat.code.controller.model.RectangularPlateauSize;
-import com.seat.code.service.model.MowerOrientation;
 import com.seat.code.service.model.Plateau;
 
 @Component
@@ -23,7 +24,7 @@ public class ControllerLayerMapper {
         return plateau;
     }
 
-    public RectangularPlateauDetail mapToPlateauDetail(final Plateau plateau) {
+    public RectangularPlateauDetail mapToPlateauDetailResponse(final Plateau plateau) {
         final RectangularPlateauSize rectangularPlateauSize = new RectangularPlateauSize();
         rectangularPlateauSize.setLength(plateau.getLength());
         rectangularPlateauSize.setWidth(plateau.getWidth());
@@ -40,7 +41,19 @@ public class ControllerLayerMapper {
         mower.setPlateauId(plateauId);
         mower.setLatitude(mowerRequest.getPosition().getLatitude());
         mower.setLongitude(mowerRequest.getPosition().getLongitude());
-        mower.setOrientation(MowerOrientation.valueOf(mowerRequest.getPosition().getOrientation().name()));
+        mower.setOrientation(com.seat.code.service.model.MowerOrientation.valueOf(mowerRequest.getPosition().getOrientation().name()));
         return mower;
+    }
+
+    public Mower mapToMowerResponse(final com.seat.code.service.model.Mower mower) {
+        final MowerPosition mowerPosition = new MowerPosition();
+        mowerPosition.setLatitude(mower.getLatitude());
+        mowerPosition.setLongitude(mower.getLongitude());
+        mowerPosition.setOrientation(MowerOrientation.valueOf(mower.getOrientation().name()));
+
+        final Mower mowerResponse = new Mower();
+        mowerResponse.setName(mower.getName());
+        mowerResponse.setPosition(mowerPosition);
+        return mowerResponse;
     }
 }

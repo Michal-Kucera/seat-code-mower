@@ -50,7 +50,7 @@ class PlateausApiImpl implements PlateausApi {
     @Override
     public ResponseEntity<RectangularPlateauDetail> getPlateau(@ApiParam(value = "Plateau's ID", required = true) @PathVariable("plateauId") final UUID plateauId) {
         final Plateau plateau = plateauService.getPlateau(plateauId);
-        final RectangularPlateauDetail plateauDetail = controllerLayerMapper.mapToPlateauDetail(plateau);
+        final RectangularPlateauDetail plateauDetail = controllerLayerMapper.mapToPlateauDetailResponse(plateau);
         return ok(plateauDetail);
     }
 

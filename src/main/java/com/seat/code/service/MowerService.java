@@ -15,4 +15,6 @@ public interface MowerService {
      * @throws MowerPositionAlreadyTakenException Another mower in the same plateau is already in targeting position
      */
     UUID createMower(Mower mower);
+
+    Mower getMower(UUID plateauId, UUID mowerId);
 }

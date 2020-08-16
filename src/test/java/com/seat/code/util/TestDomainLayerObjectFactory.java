@@ -45,6 +45,14 @@ public class TestDomainLayerObjectFactory {
         return mowerEntity;
     }
 
+    public static MowerEntity buildMowerEntity() {
+        final PlateauEntity plateauEntity = buildPlateauEntity();
+        final MowerEntity mowerEntity = buildMowerEntity(plateauEntity);
+        plateauEntity.getMowers().clear();
+        plateauEntity.getMowers().add(mowerEntity);
+        return mowerEntity;
+    }
+
     public static MowerEntity buildMowerEntity(final PlateauEntity plateauEntity) {
         return buildMowerEntity(plateauEntity, 5, 11);
     }

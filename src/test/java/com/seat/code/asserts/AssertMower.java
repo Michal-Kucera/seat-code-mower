@@ -28,6 +28,11 @@ public class AssertMower extends AbstractAssert<AssertMower, Mower> {
         return this;
     }
 
+    public AssertMower hasId(final UUID expectedMowerId) {
+        Assertions.assertThat(actual.getId()).isEqualTo(expectedMowerId);
+        return this;
+    }
+
     public AssertMower hasName(final String expectedName) {
         Assertions.assertThat(actual.getName()).isEqualTo(expectedName);
         return this;
