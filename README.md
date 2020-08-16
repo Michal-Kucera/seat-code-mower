@@ -31,7 +31,7 @@ a user-friendly UI for testing our endpoints.
 - [X] Returns `Bad Request` when trying to create a mower with invalid data (e.g. starting position is not filled up, starting position latitude or longitude is less than 1)
 - [x] Returns `Bad Request` when trying to create a mower for a non-existing plateau ID
 - [x] Returns `Bad Request` when trying to create a mower which has a starting position out of range of plateau's size
-- [ ] Returns `Bad Request` when trying to create a mower which has the exactly same position as an already existing mower at targeting plateau
+- [x] Returns `Bad Request` when trying to create a mower which has the exactly same position as an already existing mower at targeting plateau
 
 ## Database
 As we want to store states of plateaus as well as mowers between each endpoint's execution, it's been decided to use

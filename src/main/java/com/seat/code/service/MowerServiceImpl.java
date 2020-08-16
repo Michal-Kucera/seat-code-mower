@@ -12,6 +12,7 @@ import com.seat.code.domain.entity.MowerEntity;
 import com.seat.code.domain.entity.PlateauEntity;
 import com.seat.code.domain.repository.MowerRepository;
 import com.seat.code.domain.repository.PlateauRepository;
+import com.seat.code.service.exception.MowerPositionAlreadyTakenException;
 import com.seat.code.service.exception.MowerPositionOutOfRangeException;
 import com.seat.code.service.exception.PlateauNotFoundException;
 import com.seat.code.service.mapper.ServiceLayerMapper;
@@ -42,6 +43,9 @@ class MowerServiceImpl implements MowerService {
         if (!isMowerPositionInPlateauRange(mower, plateauEntity)) {
             throw new MowerPositionOutOfRangeException("Mower's position is out of range of plateau");
         }
+        if (isMowerTargetingPositionAlreadyTakenInPlateau(mower, plateauEntity)) {
+            throw new MowerPositionAlreadyTakenException("Mower's targeting position is already taken by another mower in plateau");
+        }
         final MowerEntity mowerEntity = serviceLayerMapper.mapToMowerEntity(mower, plateauEntity);
         final UUID newMowerId = mowerRepository.save(mowerEntity).getId();
         logger.info("Mower with ID: [{}] has been created", newMowerId);
@@ -51,5 +55,12 @@ class MowerServiceImpl implements MowerService {
     private boolean isMowerPositionInPlateauRange(final Mower mower, final PlateauEntity plateauEntity) {
         return plateauEntity.getLength() >= mower.getLatitude()
             && plateauEntity.getWidth() >= mower.getLongitude();
+    }
+
+    private boolean isMowerTargetingPositionAlreadyTakenInPlateau(final Mower mower,
+                                                                  final PlateauEntity plateauEntity) {
+        return plateauEntity.getMowers().stream()
+            .anyMatch(mowerInPlateau -> mowerInPlateau.getLatitude().equals(mower.getLatitude())
+                && mowerInPlateau.getLongitude().equals(mower.getLongitude()));
     }
 }

@@ -27,6 +27,7 @@ import com.seat.code.domain.entity.MowerEntity;
 import com.seat.code.domain.entity.PlateauEntity;
 import com.seat.code.domain.repository.MowerRepository;
 import com.seat.code.domain.repository.PlateauRepository;
+import com.seat.code.service.exception.MowerPositionAlreadyTakenException;
 import com.seat.code.service.exception.MowerPositionOutOfRangeException;
 import com.seat.code.service.exception.PlateauNotFoundException;
 import com.seat.code.service.mapper.ServiceLayerMapper;
@@ -119,6 +120,27 @@ class MowerServiceImplTest {
         assertThatThrownBy(() -> underTest.createMower(mower))
             .isInstanceOf(MowerPositionOutOfRangeException.class)
             .hasMessage("Mower's position is out of range of plateau");
+
+        verify(plateauRepository).findById(mower.getPlateauId());
+        verifyNoMoreInteractions(plateauRepository);
+        verifyNoInteractions(serviceLayerMapper, mowerRepository);
+    }
+
+    @Test
+    void createMower_shouldThrowMowerPositionAlreadyTakenException_whenPlateauFoundInDatabaseButMowerIsTargetingTheSamePositionAsAlreadyExistingMowerInPlateau() {
+        final PlateauEntity plateauEntity = buildPlateauEntity();
+        plateauEntity.getMowers().clear();
+        final Integer mowerLatitude = 3;
+        final Integer mowerLongitude = 2;
+        final MowerEntity alreadyExistingMowerWithSamePosition = buildMowerEntity(plateauEntity, mowerLatitude, mowerLongitude);
+        plateauEntity.getMowers().add(alreadyExistingMowerWithSamePosition);
+        final Mower mower = buildMower(mowerLatitude, mowerLongitude);
+
+        when(plateauRepository.findById(mower.getPlateauId())).thenReturn(Optional.of(plateauEntity));
+
+        assertThatThrownBy(() -> underTest.createMower(mower))
+            .isInstanceOf(MowerPositionAlreadyTakenException.class)
+            .hasMessage("Mower's targeting position is already taken by another mower in plateau");
 
         verify(plateauRepository).findById(mower.getPlateauId());
         verifyNoMoreInteractions(plateauRepository);

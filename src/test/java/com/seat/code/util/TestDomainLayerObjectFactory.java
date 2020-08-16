@@ -31,15 +31,21 @@ public class TestDomainLayerObjectFactory {
         return plateau;
     }
 
-    public static MowerEntity buildMowerEntity(final PlateauEntity plateauEntity) {
+    public static MowerEntity buildMowerEntity(final PlateauEntity plateauEntity,
+                                               final Integer latitude,
+                                               final Integer longitude) {
         final MowerEntity mowerEntity = new MowerEntity();
         mowerEntity.setName("Mower Nr. 1");
         mowerEntity.setPlateau(plateauEntity);
         mowerEntity.setId(UUID.randomUUID());
-        mowerEntity.setLatitude(11);
-        mowerEntity.setLongitude(5);
+        mowerEntity.setLatitude(latitude);
+        mowerEntity.setLongitude(longitude);
         mowerEntity.setOrientation(NORTH);
         mowerEntity.setVersion(1);
         return mowerEntity;
+    }
+
+    public static MowerEntity buildMowerEntity(final PlateauEntity plateauEntity) {
+        return buildMowerEntity(plateauEntity, 5, 11);
     }
 }

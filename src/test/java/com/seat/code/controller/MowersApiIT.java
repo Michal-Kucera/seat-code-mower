@@ -152,7 +152,7 @@ class MowersApiIT {
     }
 
     @Test
-    void createMower_shouldStoreMowerIntoDatabase_whenReceivedValidMowerRequestAndPlateauAlreadyExists() {
+    void createMower_shouldStoreMowerIntoDatabase_whenReceivedValidMowerRequestAndPlateauAlreadyExistsAndMowerPositionIsInRangeOfPlateau() {
         final Mower mowerRequest = buildMower();
         final PlateauEntity storedPlateauEntity = buildPlateauEntity();
         final MowerEntity storedMowerEntity = buildMowerEntity(storedPlateauEntity);
@@ -235,7 +235,7 @@ class MowersApiIT {
     }
 
     @Test
-    void createMower_shouldNotStoreMowerAndReturnBadRequest_whenReceivedValidMowerRequestAndPlateauExistsInDatabaseAndMowerHasInvalidLatitudePositionAgainstToPlateau() {
+    void createMower_shouldNotStoreMowerAndReturnBadRequest_whenReceivedValidMowerRequestAndPlateauExistsInDatabaseAndMowerHasLatitudePositionBiggerThenPlateauLength() {
         final PlateauEntity storedPlateauEntity = buildPlateauEntity();
         final Mower mowerRequest = buildMower();
         mowerRequest.getPosition().setLatitude(storedPlateauEntity.getLength() + 1);
@@ -259,11 +259,38 @@ class MowersApiIT {
     }
 
     @Test
-    void createMower_shouldNotStoreMowerAndReturnBadRequest_whenReceivedValidMowerRequestAndPlateauExistsInDatabaseAndMowerHasInvalidLongitudePositionAgainstToPlateau() {
+    void createMower_shouldNotStoreMowerAndReturnBadRequest_whenReceivedValidMowerRequestAndPlateauExistsInDatabaseAndMowerHasLongitudePositionBiggerThenPlateauWidth() {
         final PlateauEntity storedPlateauEntity = buildPlateauEntity();
         final Mower mowerRequest = buildMower();
         mowerRequest.getPosition().setLatitude(storedPlateauEntity.getLength());
         mowerRequest.getPosition().setLongitude(storedPlateauEntity.getWidth() + 1);
+
+        when(plateauRepository.findById(storedPlateauEntity.getId())).thenReturn(Optional.of(storedPlateauEntity));
+
+        given()
+            .contentType(APPLICATION_JSON_VALUE)
+            .and().body(mowerRequest)
+            .and().log().all()
+            .when()
+            .post(CREATE_MOWER_RESOURCE_PATH, storedPlateauEntity.getId())
+            .then()
+            .log().all()
+            .and().statusCode(BAD_REQUEST.value());
+
+        verify(plateauRepository).findById(storedPlateauEntity.getId());
+        verifyNoMoreInteractions(plateauRepository);
+        verifyNoInteractions(mowerRepository);
+    }
+
+    @Test
+    void createMower_shouldNotStoreMowerAndReturnBadRequest_whenReceivedValidMowerRequestAndPlateauExistsInDatabaseAndMowerHasSamePositionAsAlreadyExistinMower() {
+        final PlateauEntity storedPlateauEntity = buildPlateauEntity();
+        storedPlateauEntity.getMowers().clear();
+        final MowerEntity alreadyExistingMowerEntity = buildMowerEntity(storedPlateauEntity);
+        storedPlateauEntity.getMowers().add(alreadyExistingMowerEntity);
+        final Mower mowerRequest = buildMower();
+        alreadyExistingMowerEntity.setLatitude(mowerRequest.getPosition().getLatitude());
+        alreadyExistingMowerEntity.setLongitude(mowerRequest.getPosition().getLongitude());
 
         when(plateauRepository.findById(storedPlateauEntity.getId())).thenReturn(Optional.of(storedPlateauEntity));
 
