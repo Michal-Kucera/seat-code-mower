@@ -2,7 +2,6 @@ package com.seat.code.asserts;
 
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
-import org.mockito.ArgumentCaptor;
 
 import com.seat.code.controller.model.Mower;
 import com.seat.code.controller.model.MowerOrientation;
@@ -15,10 +14,6 @@ public class AssertMowerResponse extends AbstractAssert<AssertMowerResponse, Mow
 
     public static AssertMowerResponse assertThat(final Mower actual) {
         return new AssertMowerResponse(actual);
-    }
-
-    public static AssertMowerResponse assertThat(final ArgumentCaptor<Mower> argumentCaptor) {
-        return assertThat(argumentCaptor.getValue());
     }
 
     public AssertMowerResponse hasName(final String expectedName) {

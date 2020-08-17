@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
-import org.mockito.ArgumentCaptor;
 
 import com.seat.code.service.plateau.model.Plateau;
 
@@ -16,10 +15,6 @@ public class AssertPlateau extends AbstractAssert<AssertPlateau, Plateau> {
 
     public static AssertPlateau assertThat(final Plateau actual) {
         return new AssertPlateau(actual);
-    }
-
-    public static AssertPlateau assertThat(final ArgumentCaptor<Plateau> argumentCaptor) {
-        return assertThat(argumentCaptor.getValue());
     }
 
     public AssertPlateau hasNullId() {

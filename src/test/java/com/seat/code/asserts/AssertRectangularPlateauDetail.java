@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
-import org.mockito.ArgumentCaptor;
 
 import com.seat.code.controller.model.RectangularPlateauDetail;
 
@@ -16,10 +15,6 @@ public class AssertRectangularPlateauDetail extends AbstractAssert<AssertRectang
 
     public static AssertRectangularPlateauDetail assertThat(final RectangularPlateauDetail actual) {
         return new AssertRectangularPlateauDetail(actual);
-    }
-
-    public static AssertRectangularPlateauDetail assertThat(final ArgumentCaptor<RectangularPlateauDetail> argumentCaptor) {
-        return assertThat(argumentCaptor.getValue());
     }
 
     public AssertRectangularPlateauDetail hasName(final String expectedName) {
