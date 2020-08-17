@@ -6,13 +6,13 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.util.UUID;
 
 import org.slf4j.Logger;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 
 import com.seat.code.domain.entity.MowerEntity;
 import com.seat.code.domain.entity.PlateauEntity;
 import com.seat.code.domain.repository.MowerRepository;
 import com.seat.code.domain.repository.PlateauRepository;
-import com.seat.code.service.mapper.ServiceLayerMapper;
 import com.seat.code.service.mower.exception.MowerNotFoundException;
 import com.seat.code.service.mower.exception.MowerPositionAlreadyTakenException;
 import com.seat.code.service.mower.exception.MowerPositionOutOfRangeException;
@@ -24,14 +24,14 @@ class MowerServiceImpl implements MowerService {
 
     private static final Logger logger = getLogger(MowerServiceImpl.class);
 
-    private final ServiceLayerMapper serviceLayerMapper;
+    private final ConversionService conversionService;
     private final PlateauRepository plateauRepository;
     private final MowerRepository mowerRepository;
 
-    MowerServiceImpl(final ServiceLayerMapper serviceLayerMapper,
+    MowerServiceImpl(final ConversionService conversionService,
                      final PlateauRepository plateauRepository,
                      final MowerRepository mowerRepository) {
-        this.serviceLayerMapper = serviceLayerMapper;
+        this.conversionService = conversionService;
         this.plateauRepository = plateauRepository;
         this.mowerRepository = mowerRepository;
     }
@@ -50,7 +50,8 @@ class MowerServiceImpl implements MowerService {
             throw new MowerPositionAlreadyTakenException("Mower's targeting position is already taken by another mower in plateau");
         }
 
-        final MowerEntity mowerEntity = serviceLayerMapper.mapToMowerEntity(mower, plateauEntity);
+        final MowerEntity mowerEntity = conversionService.convert(mower, MowerEntity.class);
+        mowerEntity.setPlateau(plateauEntity);
         final UUID newMowerId = mowerRepository.save(mowerEntity).getId();
         logger.info("Mower with ID: [{}] has been created", newMowerId);
         return newMowerId;
@@ -60,7 +61,7 @@ class MowerServiceImpl implements MowerService {
     public Mower getMower(final UUID plateauId, final UUID mowerId) {
         logger.info("Searching for mower with ID: [{}], associated to plateau with ID: [{}] in database", mowerId, plateauId);
         return mowerRepository.findOneByIdAndPlateauId(mowerId, plateauId)
-            .map(serviceLayerMapper::mapToMower)
+            .map(mower -> conversionService.convert(mower, Mower.class))
             .orElseThrow(() -> new MowerNotFoundException(format("Mower with ID: [%s], associated to plateau with ID: [%s] not found", mowerId, plateauId)));
     }
 

@@ -5,6 +5,7 @@ import static com.seat.code.util.TestDomainLayerObjectFactory.buildPlateauEntity
 import static com.seat.code.util.TestServiceLayerObjectFactory.buildMower;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -19,15 +20,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.convert.ConversionService;
 
+import com.seat.code.asserts.AssertMowerEntity;
 import com.seat.code.domain.entity.MowerEntity;
 import com.seat.code.domain.entity.PlateauEntity;
 import com.seat.code.domain.repository.MowerRepository;
 import com.seat.code.domain.repository.PlateauRepository;
-import com.seat.code.service.mapper.ServiceLayerMapper;
 import com.seat.code.service.mower.exception.MowerNotFoundException;
 import com.seat.code.service.mower.exception.MowerPositionAlreadyTakenException;
 import com.seat.code.service.mower.exception.MowerPositionOutOfRangeException;
@@ -38,7 +42,7 @@ import com.seat.code.service.plateau.exception.PlateauNotFoundException;
 class MowerServiceImplTest {
 
     @Mock
-    private ServiceLayerMapper serviceLayerMapper;
+    private ConversionService conversionService;
 
     @Mock
     private PlateauRepository plateauRepository;
@@ -48,6 +52,9 @@ class MowerServiceImplTest {
 
     @InjectMocks
     private MowerServiceImpl underTest;
+
+    @Captor
+    private ArgumentCaptor<MowerEntity> mowerEntityArgumentCaptor;
 
     @ParameterizedTest
     @MethodSource("getPlateauAndMowerPositionsForMowerPositionNotOutOfRangeTest")
@@ -62,15 +69,24 @@ class MowerServiceImplTest {
         final MowerEntity storedMowerEntity = buildMowerEntity(plateauEntity);
 
         when(plateauRepository.findById(plateauId)).thenReturn(Optional.of(plateauEntity));
-        when(serviceLayerMapper.mapToMowerEntity(mower, plateauEntity)).thenReturn(mowerEntityToStore);
+        doReturn(mowerEntityToStore).when(conversionService).convert(mower, MowerEntity.class);
         when(mowerRepository.save(mowerEntityToStore)).thenReturn(storedMowerEntity);
 
         underTest.createMower(plateauId, mower);
 
         verify(plateauRepository).findById(plateauId);
-        verify(serviceLayerMapper).mapToMowerEntity(mower, plateauEntity);
-        verify(mowerRepository).save(mowerEntityToStore);
-        verifyNoMoreInteractions(plateauRepository, serviceLayerMapper, mowerRepository);
+        verify(conversionService).convert(mower, MowerEntity.class);
+        verify(mowerRepository).save(mowerEntityArgumentCaptor.capture());
+        AssertMowerEntity.assertThat(mowerEntityArgumentCaptor)
+            .isNotNull()
+            .hasId(mowerEntityToStore.getId())
+            .hasVersion(mowerEntityToStore.getVersion())
+            .hasName(mowerEntityToStore.getName())
+            .hasPlateau(plateauEntity)
+            .hasLatitude(mowerEntityToStore.getLatitude())
+            .hasLongitude(mowerEntityToStore.getLongitude())
+            .hasOrientation(mowerEntityToStore.getOrientation());
+        verifyNoMoreInteractions(plateauRepository, mowerRepository);
     }
 
     @Test
@@ -82,16 +98,16 @@ class MowerServiceImplTest {
         final MowerEntity storedMowerEntity = buildMowerEntity(plateauEntity);
 
         when(plateauRepository.findById(plateauId)).thenReturn(Optional.of(plateauEntity));
-        when(serviceLayerMapper.mapToMowerEntity(mower, plateauEntity)).thenReturn(mowerEntityToStore);
+        doReturn(mowerEntityToStore).when(conversionService).convert(mower, MowerEntity.class);
         when(mowerRepository.save(mowerEntityToStore)).thenReturn(storedMowerEntity);
 
         final UUID newMowerId = underTest.createMower(plateauId, mower);
 
         assertThat(newMowerId).isEqualTo(storedMowerEntity.getId());
         verify(plateauRepository).findById(plateauId);
-        verify(serviceLayerMapper).mapToMowerEntity(mower, plateauEntity);
+        verify(conversionService).convert(mower, MowerEntity.class);
         verify(mowerRepository).save(mowerEntityToStore);
-        verifyNoMoreInteractions(plateauRepository, serviceLayerMapper, mowerRepository);
+        verifyNoMoreInteractions(plateauRepository, mowerRepository);
     }
 
     @Test
@@ -107,7 +123,7 @@ class MowerServiceImplTest {
 
         verify(plateauRepository).findById(plateauId);
         verifyNoMoreInteractions(plateauRepository);
-        verifyNoInteractions(serviceLayerMapper, mowerRepository);
+        verifyNoInteractions(mowerRepository);
     }
 
     @ParameterizedTest
@@ -128,7 +144,7 @@ class MowerServiceImplTest {
 
         verify(plateauRepository).findById(plateauId);
         verifyNoMoreInteractions(plateauRepository);
-        verifyNoInteractions(serviceLayerMapper, mowerRepository);
+        verifyNoInteractions(mowerRepository);
     }
 
     @Test
@@ -150,7 +166,7 @@ class MowerServiceImplTest {
 
         verify(plateauRepository).findById(plateauId);
         verifyNoMoreInteractions(plateauRepository);
-        verifyNoInteractions(serviceLayerMapper, mowerRepository);
+        verifyNoInteractions(mowerRepository);
     }
 
     @Test
@@ -161,13 +177,13 @@ class MowerServiceImplTest {
         final Mower mower = buildMower();
 
         when(mowerRepository.findOneByIdAndPlateauId(mowerId, plateauId)).thenReturn(Optional.of(storedMowerEntity));
-        when(serviceLayerMapper.mapToMower(storedMowerEntity)).thenReturn(mower);
+        doReturn(mower).when(conversionService).convert(storedMowerEntity, Mower.class);
 
         assertThat(underTest.getMower(plateauId, mowerId)).isEqualTo(mower);
 
         verify(mowerRepository).findOneByIdAndPlateauId(mowerId, plateauId);
-        verify(serviceLayerMapper).mapToMower(storedMowerEntity);
-        verifyNoMoreInteractions(mowerRepository, serviceLayerMapper);
+        verify(conversionService).convert(storedMowerEntity, Mower.class);
+        verifyNoMoreInteractions(mowerRepository);
     }
 
     @Test
@@ -182,7 +198,7 @@ class MowerServiceImplTest {
             .hasMessage("Mower with ID: [%s], associated to plateau with ID: [%s] not found", mowerId, plateauId);
 
         verify(mowerRepository).findOneByIdAndPlateauId(mowerId, plateauId);
-        verifyNoMoreInteractions(mowerRepository, serviceLayerMapper);
+        verifyNoMoreInteractions(mowerRepository);
     }
 
     private static Stream<Arguments> getPlateauAndMowerPositionsForMowerPositionNotOutOfRangeTest() {

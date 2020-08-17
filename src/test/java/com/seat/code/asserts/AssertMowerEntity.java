@@ -54,6 +54,11 @@ public class AssertMowerEntity extends AbstractAssert<AssertMowerEntity, MowerEn
         return this;
     }
 
+    public AssertMowerEntity hasNullPlateau() {
+        Assertions.assertThat(actual.getPlateau()).isNull();
+        return this;
+    }
+
     public AssertMowerEntity hasLatitude(final Integer expectedLatitude) {
         Assertions.assertThat(actual.getLatitude()).isEqualTo(expectedLatitude);
         return this;
