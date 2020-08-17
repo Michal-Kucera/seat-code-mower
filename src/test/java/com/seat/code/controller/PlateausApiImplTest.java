@@ -34,8 +34,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.seat.code.controller.mapper.ControllerLayerMapper;
 import com.seat.code.controller.model.RectangularPlateau;
 import com.seat.code.controller.model.RectangularPlateauDetail;
-import com.seat.code.service.PlateauService;
-import com.seat.code.service.model.Plateau;
+import com.seat.code.service.plateau.PlateauService;
+import com.seat.code.service.plateau.model.Plateau;
 
 @SpringBootTest
 @AutoConfigureMockMvc

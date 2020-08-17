@@ -6,7 +6,7 @@ import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
 import org.mockito.ArgumentCaptor;
 
-import com.seat.code.service.model.Plateau;
+import com.seat.code.service.plateau.model.Plateau;
 
 public class AssertPlateau extends AbstractAssert<AssertPlateau, Plateau> {
 

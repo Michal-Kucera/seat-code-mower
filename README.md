@@ -35,6 +35,11 @@ a user-friendly UI for testing our endpoints.
 - [x] Returns `Bad Request` when trying to create a mower which has the exactly same position as an already existing mower at targeting plateau
 - [x] Returns `Bad Request` when trying to access a mower which doesn't exist or is not associated with a targeting plateau
 
+### Mower instruction
+- [x] Returns `Bad Request` when trying to move a mower which doesn't exist or is not associated with a targeting plateau
+- [x] Returns `Bad Request` when trying to move a mower out of a range of plateau's size
+- [x] Returns `Bad Request` when trying to move a mower to an exactly same position as another mower has already taken at targeting plateau
+
 ## Database
 As we want to store states of plateaus as well as mowers between each endpoint's execution, it's been decided to use
 an H2 in-memory database for this purpose. This decision keeps our options open and enables us to make the non-in-memory

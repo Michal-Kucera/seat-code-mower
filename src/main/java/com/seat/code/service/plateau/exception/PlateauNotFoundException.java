@@ -1,4 +1,4 @@
-package com.seat.code.service.exception;
+package com.seat.code.service.plateau.exception;
 
 /**
  * Plateau not found in database

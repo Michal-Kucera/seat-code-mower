@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.seat.code.controller.mapper.ControllerLayerMapper;
 import com.seat.code.controller.model.Mower;
-import com.seat.code.service.MowerService;
+import com.seat.code.controller.model.MowerInstruction;
+import com.seat.code.service.mower.MowerService;
+import com.seat.code.service.mower.instruction.MowerInstructionService;
 import com.seat.code.util.TestControllerLayerObjectFactory;
 import com.seat.code.util.TestServiceLayerObjectFactory;
 
@@ -46,6 +49,9 @@ class MowersApiImplTest {
     @MockBean
     private MowerService mowerService;
 
+    @MockBean
+    private MowerInstructionService mowerInstructionService;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -53,7 +59,7 @@ class MowersApiImplTest {
     void createMower_shouldCreateMower() throws Exception {
         final UUID plateauId = UUID.randomUUID();
         final Mower mowerRequest = TestControllerLayerObjectFactory.buildMower();
-        final com.seat.code.service.model.Mower mower = TestServiceLayerObjectFactory.buildMower();
+        final com.seat.code.service.mower.model.Mower mower = TestServiceLayerObjectFactory.buildMower();
         final UUID newMowerId = UUID.randomUUID();
 
         when(controllerLayerMapper.mapToMower(plateauId, mowerRequest)).thenReturn(mower);
@@ -73,7 +79,7 @@ class MowersApiImplTest {
     void createMower_shouldReturnCreatedHttpStatus_whenMowerIsCreated() throws Exception {
         final UUID plateauId = UUID.randomUUID();
         final Mower mowerRequest = TestControllerLayerObjectFactory.buildMower();
-        final com.seat.code.service.model.Mower mower = TestServiceLayerObjectFactory.buildMower();
+        final com.seat.code.service.mower.model.Mower mower = TestServiceLayerObjectFactory.buildMower();
         final UUID newMowerId = UUID.randomUUID();
 
         when(controllerLayerMapper.mapToMower(plateauId, mowerRequest)).thenReturn(mower);
@@ -94,7 +100,7 @@ class MowersApiImplTest {
     void createMower_shouldReturnLocationHeader_whenMowerIsCreated() throws Exception {
         final UUID plateauId = UUID.randomUUID();
         final Mower mowerRequest = TestControllerLayerObjectFactory.buildMower();
-        final com.seat.code.service.model.Mower mower = TestServiceLayerObjectFactory.buildMower();
+        final com.seat.code.service.mower.model.Mower mower = TestServiceLayerObjectFactory.buildMower();
         final UUID newMowerId = UUID.randomUUID();
 
         when(controllerLayerMapper.mapToMower(plateauId, mowerRequest)).thenReturn(mower);
@@ -115,7 +121,7 @@ class MowersApiImplTest {
     void getMower_shouldReturnMowerPosition() throws Exception {
         final UUID plateauId = UUID.randomUUID();
         final UUID mowerId = UUID.randomUUID();
-        final com.seat.code.service.model.Mower mower = TestServiceLayerObjectFactory.buildMower();
+        final com.seat.code.service.mower.model.Mower mower = TestServiceLayerObjectFactory.buildMower();
         final Mower mowerResponse = TestControllerLayerObjectFactory.buildMower();
 
         when(mowerService.getMower(plateauId, mowerId)).thenReturn(mower);
@@ -134,6 +140,26 @@ class MowersApiImplTest {
         verify(mowerService).getMower(plateauId, mowerId);
         verify(controllerLayerMapper).mapToMowerResponse(mower);
         verifyNoMoreInteractions(mowerService, controllerLayerMapper);
+    }
+
+    @Test
+    void applyMowerInstructions_shouldApplyInstructionsToTargetingMowerAndReturnNoContentHttpStatus() throws Exception {
+        final UUID plateauId = UUID.randomUUID();
+        final UUID mowerId = UUID.randomUUID();
+        final List<MowerInstruction> mowerInstructionsRequest = TestControllerLayerObjectFactory.buildMowerInstructions();
+        final List<com.seat.code.service.mower.model.MowerInstruction> mowerInstructions = TestServiceLayerObjectFactory.buildMowerInstructions();
+
+        when(controllerLayerMapper.mapToMowerInstructions(mowerInstructionsRequest)).thenReturn(mowerInstructions);
+
+        mockMvc.perform(post(APPLY_MOWER_INSTRUCTIONS_RESOURCE_PATH, plateauId, mowerId)
+            .contentType(APPLICATION_JSON_VALUE)
+            .content(asJsonString(mowerInstructionsRequest)))
+            .andDo(print())
+            .andExpect(status().isNoContent());
+
+        verify(controllerLayerMapper).mapToMowerInstructions(mowerInstructionsRequest);
+        verify(mowerInstructionService).applyInstructionsToMower(mowerInstructions, plateauId, mowerId);
+        verifyNoMoreInteractions(controllerLayerMapper, mowerInstructionService);
     }
 
     private String buildMowerLocationHeaderValue(final UUID plateauId, final UUID newMowerId) {

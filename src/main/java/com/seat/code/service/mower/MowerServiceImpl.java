@@ -1,4 +1,4 @@
-package com.seat.code.service;
+package com.seat.code.service.mower;
 
 import static java.lang.String.format;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -12,12 +12,12 @@ import com.seat.code.domain.entity.MowerEntity;
 import com.seat.code.domain.entity.PlateauEntity;
 import com.seat.code.domain.repository.MowerRepository;
 import com.seat.code.domain.repository.PlateauRepository;
-import com.seat.code.service.exception.MowerNotFoundException;
-import com.seat.code.service.exception.MowerPositionAlreadyTakenException;
-import com.seat.code.service.exception.MowerPositionOutOfRangeException;
-import com.seat.code.service.exception.PlateauNotFoundException;
 import com.seat.code.service.mapper.ServiceLayerMapper;
-import com.seat.code.service.model.Mower;
+import com.seat.code.service.mower.exception.MowerNotFoundException;
+import com.seat.code.service.mower.exception.MowerPositionAlreadyTakenException;
+import com.seat.code.service.mower.exception.MowerPositionOutOfRangeException;
+import com.seat.code.service.mower.model.Mower;
+import com.seat.code.service.plateau.exception.PlateauNotFoundException;
 
 @Service
 class MowerServiceImpl implements MowerService {
@@ -38,15 +38,18 @@ class MowerServiceImpl implements MowerService {
 
     @Override
     public UUID createMower(final Mower mower) {
-        logger.info("Creating mower with name: [{}], starting location: [{}, {}], orientation: [{}] in plateau with ID: [{}]", mower.getName(), mower.getLatitude(), mower.getLongitude(), mower.getOrientation(), mower.getPlateauId());
+        logger.info("Creating mower with name: [{}], starting location: [{}, {}], orientation: [{}] in plateau with ID: [{}]", mower.getName(), mower.getLongitude(), mower.getLatitude(), mower.getOrientation(), mower.getPlateauId());
         final PlateauEntity plateauEntity = plateauRepository.findById(mower.getPlateauId())
             .orElseThrow(() -> new PlateauNotFoundException(format("Plateau with ID: [%s] not found", mower.getPlateauId())));
+
         if (!isMowerPositionInPlateauRange(mower, plateauEntity)) {
             throw new MowerPositionOutOfRangeException("Mower's position is out of range of plateau");
         }
+
         if (isMowerTargetingPositionAlreadyTakenInPlateau(mower, plateauEntity)) {
             throw new MowerPositionAlreadyTakenException("Mower's targeting position is already taken by another mower in plateau");
         }
+
         final MowerEntity mowerEntity = serviceLayerMapper.mapToMowerEntity(mower, plateauEntity);
         final UUID newMowerId = mowerRepository.save(mowerEntity).getId();
         logger.info("Mower with ID: [{}] has been created", newMowerId);

@@ -1,4 +1,4 @@
-package com.seat.code.service.model;
+package com.seat.code.service.mower.model;
 
 public enum MowerOrientation {
 

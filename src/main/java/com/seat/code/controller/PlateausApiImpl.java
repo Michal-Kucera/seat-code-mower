@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.seat.code.controller.mapper.ControllerLayerMapper;
 import com.seat.code.controller.model.RectangularPlateau;
 import com.seat.code.controller.model.RectangularPlateauDetail;
-import com.seat.code.service.PlateauService;
-import com.seat.code.service.model.Plateau;
+import com.seat.code.service.plateau.PlateauService;
+import com.seat.code.service.plateau.model.Plateau;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;

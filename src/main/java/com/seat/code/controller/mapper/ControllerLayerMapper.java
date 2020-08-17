@@ -1,17 +1,21 @@
 package com.seat.code.controller.mapper;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
 import com.seat.code.controller.model.Mower;
+import com.seat.code.controller.model.MowerInstruction;
 import com.seat.code.controller.model.MowerOrientation;
 import com.seat.code.controller.model.MowerPosition;
 import com.seat.code.controller.model.RectangularPlateau;
 import com.seat.code.controller.model.RectangularPlateauDetail;
 import com.seat.code.controller.model.RectangularPlateauSize;
-import com.seat.code.service.model.Plateau;
+import com.seat.code.service.plateau.model.Plateau;
 
 @Component
 public class ControllerLayerMapper {
@@ -35,17 +39,17 @@ public class ControllerLayerMapper {
         return rectangularPlateauDetail;
     }
 
-    public com.seat.code.service.model.Mower mapToMower(final UUID plateauId, final Mower mowerRequest) {
-        final com.seat.code.service.model.Mower mower = new com.seat.code.service.model.Mower();
+    public com.seat.code.service.mower.model.Mower mapToMower(final UUID plateauId, final Mower mowerRequest) {
+        final com.seat.code.service.mower.model.Mower mower = new com.seat.code.service.mower.model.Mower();
         mower.setName(mowerRequest.getName());
         mower.setPlateauId(plateauId);
         mower.setLatitude(mowerRequest.getPosition().getLatitude());
         mower.setLongitude(mowerRequest.getPosition().getLongitude());
-        mower.setOrientation(com.seat.code.service.model.MowerOrientation.valueOf(mowerRequest.getPosition().getOrientation().name()));
+        mower.setOrientation(com.seat.code.service.mower.model.MowerOrientation.valueOf(mowerRequest.getPosition().getOrientation().name()));
         return mower;
     }
 
-    public Mower mapToMowerResponse(final com.seat.code.service.model.Mower mower) {
+    public Mower mapToMowerResponse(final com.seat.code.service.mower.model.Mower mower) {
         final MowerPosition mowerPosition = new MowerPosition();
         mowerPosition.setLatitude(mower.getLatitude());
         mowerPosition.setLongitude(mower.getLongitude());
@@ -55,5 +59,12 @@ public class ControllerLayerMapper {
         mowerResponse.setName(mower.getName());
         mowerResponse.setPosition(mowerPosition);
         return mowerResponse;
+    }
+
+    public List<com.seat.code.service.mower.model.MowerInstruction> mapToMowerInstructions(final List<MowerInstruction> mowerInstructions) {
+        return mowerInstructions.stream()
+            .map(Enum::name)
+            .map(com.seat.code.service.mower.model.MowerInstruction::valueOf)
+            .collect(toList());
     }
 }

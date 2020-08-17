@@ -1,4 +1,4 @@
-package com.seat.code.service.exception;
+package com.seat.code.service.mower.exception;
 
 /**
  * Another mower in the same plateau is already in targeting position

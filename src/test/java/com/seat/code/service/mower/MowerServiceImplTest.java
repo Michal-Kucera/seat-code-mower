@@ -1,4 +1,4 @@
-package com.seat.code.service;
+package com.seat.code.service.mower;
 
 import static com.seat.code.util.TestDomainLayerObjectFactory.buildMowerEntity;
 import static com.seat.code.util.TestDomainLayerObjectFactory.buildPlateauEntity;
@@ -27,12 +27,12 @@ import com.seat.code.domain.entity.MowerEntity;
 import com.seat.code.domain.entity.PlateauEntity;
 import com.seat.code.domain.repository.MowerRepository;
 import com.seat.code.domain.repository.PlateauRepository;
-import com.seat.code.service.exception.MowerNotFoundException;
-import com.seat.code.service.exception.MowerPositionAlreadyTakenException;
-import com.seat.code.service.exception.MowerPositionOutOfRangeException;
-import com.seat.code.service.exception.PlateauNotFoundException;
 import com.seat.code.service.mapper.ServiceLayerMapper;
-import com.seat.code.service.model.Mower;
+import com.seat.code.service.mower.exception.MowerNotFoundException;
+import com.seat.code.service.mower.exception.MowerPositionAlreadyTakenException;
+import com.seat.code.service.mower.exception.MowerPositionOutOfRangeException;
+import com.seat.code.service.mower.model.Mower;
+import com.seat.code.service.plateau.exception.PlateauNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 class MowerServiceImplTest {

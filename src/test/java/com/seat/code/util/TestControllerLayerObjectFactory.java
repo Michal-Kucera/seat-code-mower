@@ -1,10 +1,15 @@
 package com.seat.code.util;
 
+import static com.seat.code.controller.model.MowerInstruction.MOVE_FORWARD;
+import static com.seat.code.controller.model.MowerInstruction.SPIN_LEFT;
 import static com.seat.code.controller.model.MowerOrientation.SOUTH;
+import static java.util.Arrays.asList;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.seat.code.controller.model.Mower;
+import com.seat.code.controller.model.MowerInstruction;
 import com.seat.code.controller.model.MowerPosition;
 import com.seat.code.controller.model.RectangularPlateau;
 import com.seat.code.controller.model.RectangularPlateauDetail;
@@ -55,5 +60,17 @@ public class TestControllerLayerObjectFactory {
         mowerPosition.setLongitude(4);
         mowerPosition.setOrientation(SOUTH);
         return mowerPosition;
+    }
+
+    public static List<MowerInstruction> buildMowerInstructions() {
+        return asList(SPIN_LEFT,
+            MOVE_FORWARD,
+            SPIN_LEFT,
+            MOVE_FORWARD,
+            SPIN_LEFT,
+            MOVE_FORWARD,
+            SPIN_LEFT,
+            MOVE_FORWARD,
+            MOVE_FORWARD);
     }
 }

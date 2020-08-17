@@ -1,4 +1,4 @@
-package com.seat.code.service.exception;
+package com.seat.code.service.mower.exception;
 
 /**
  * Mower not found in database

@@ -6,8 +6,8 @@ import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
 import org.mockito.ArgumentCaptor;
 
-import com.seat.code.service.model.Mower;
-import com.seat.code.service.model.MowerOrientation;
+import com.seat.code.service.mower.model.Mower;
+import com.seat.code.service.mower.model.MowerOrientation;
 
 public class AssertMower extends AbstractAssert<AssertMower, Mower> {
 

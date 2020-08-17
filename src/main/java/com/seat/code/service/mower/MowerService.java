@@ -1,11 +1,12 @@
-package com.seat.code.service;
+package com.seat.code.service.mower;
 
 import java.util.UUID;
 
-import com.seat.code.service.exception.MowerPositionAlreadyTakenException;
-import com.seat.code.service.exception.MowerPositionOutOfRangeException;
-import com.seat.code.service.exception.PlateauNotFoundException;
-import com.seat.code.service.model.Mower;
+import com.seat.code.service.mower.exception.MowerNotFoundException;
+import com.seat.code.service.mower.exception.MowerPositionAlreadyTakenException;
+import com.seat.code.service.mower.exception.MowerPositionOutOfRangeException;
+import com.seat.code.service.mower.model.Mower;
+import com.seat.code.service.plateau.exception.PlateauNotFoundException;
 
 public interface MowerService {
 
@@ -16,5 +17,8 @@ public interface MowerService {
      */
     UUID createMower(Mower mower);
 
+    /**
+     * @throws MowerNotFoundException Mower not found in database
+     */
     Mower getMower(UUID plateauId, UUID mowerId);
 }

@@ -6,9 +6,9 @@ import com.seat.code.domain.entity.BaseEntity;
 import com.seat.code.domain.entity.MowerEntity;
 import com.seat.code.domain.entity.MowerEntityOrientation;
 import com.seat.code.domain.entity.PlateauEntity;
-import com.seat.code.service.model.Mower;
-import com.seat.code.service.model.MowerOrientation;
-import com.seat.code.service.model.Plateau;
+import com.seat.code.service.mower.model.Mower;
+import com.seat.code.service.mower.model.MowerOrientation;
+import com.seat.code.service.plateau.model.Plateau;
 
 @Component
 public class ServiceLayerMapper {

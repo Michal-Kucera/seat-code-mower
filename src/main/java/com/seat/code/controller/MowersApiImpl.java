@@ -21,7 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.seat.code.controller.mapper.ControllerLayerMapper;
 import com.seat.code.controller.model.Mower;
 import com.seat.code.controller.model.MowerInstruction;
-import com.seat.code.service.MowerService;
+import com.seat.code.service.mower.MowerService;
+import com.seat.code.service.mower.instruction.MowerInstructionService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -33,17 +34,20 @@ class MowersApiImpl implements MowersApi {
 
     private final ControllerLayerMapper controllerLayerMapper;
     private final MowerService mowerService;
+    private final MowerInstructionService mowerInstructionService;
 
     MowersApiImpl(final ControllerLayerMapper controllerLayerMapper,
-                  final MowerService mowerService) {
+                  final MowerService mowerService,
+                  final MowerInstructionService mowerInstructionService) {
         this.controllerLayerMapper = controllerLayerMapper;
         this.mowerService = mowerService;
+        this.mowerInstructionService = mowerInstructionService;
     }
 
     @Override
     public ResponseEntity<Void> createMower(@ApiParam(value = "Plateau's ID", required = true) @PathVariable("plateauId") final UUID plateauId,
                                             @ApiParam(value = "Create mower request body", required = true) @Valid @RequestBody final Mower createMowerRequest) {
-        final com.seat.code.service.model.Mower mower = controllerLayerMapper.mapToMower(plateauId, createMowerRequest);
+        final com.seat.code.service.mower.model.Mower mower = controllerLayerMapper.mapToMower(plateauId, createMowerRequest);
         final UUID newMowerId = mowerService.createMower(mower);
         final URI locationHeaderValue = buildMowerLocationHeaderValue(newMowerId);
         return created(locationHeaderValue).build();
@@ -52,7 +56,7 @@ class MowersApiImpl implements MowersApi {
     @Override
     public ResponseEntity<Mower> getMower(@ApiParam(value = "Plateau's ID", required = true) @PathVariable("plateauId") final UUID plateauId,
                                           @ApiParam(value = "Mower's ID", required = true) @PathVariable("mowerId") final UUID mowerId) {
-        final com.seat.code.service.model.Mower mower = mowerService.getMower(plateauId, mowerId);
+        final com.seat.code.service.mower.model.Mower mower = mowerService.getMower(plateauId, mowerId);
         final Mower mowerResponse = controllerLayerMapper.mapToMowerResponse(mower);
         return ok(mowerResponse);
     }
@@ -60,6 +64,8 @@ class MowersApiImpl implements MowersApi {
     @Override
     public ResponseEntity<Void> applyMowerInstructions(@ApiParam(value = "Plateau's ID", required = true) @PathVariable("plateauId") final UUID plateauId, @ApiParam(value = "Mower's ID", required = true) @PathVariable("mowerId") final UUID mowerId,
                                                        @ApiParam(value = "Mower instructions request body", required = true) @Valid @RequestBody final List<MowerInstruction> mowerInstructionRequest) {
+        final List<com.seat.code.service.mower.model.MowerInstruction> mowerInstructions = controllerLayerMapper.mapToMowerInstructions(mowerInstructionRequest);
+        mowerInstructionService.applyInstructionsToMower(mowerInstructions, plateauId, mowerId);
         return noContent().build();
     }
 

@@ -36,7 +36,7 @@ paths:
   /v1/plateaus/{plateauId}:
     x-summary: Plateaus collection
     parameters:
-        - $ref: '#/components/parameters/PlateauIdPathParameter'
+      - $ref: '#/components/parameters/PlateauIdPathParameter'
     get:
       operationId: getPlateau
       tags:
@@ -175,18 +175,18 @@ components:
       description: Mower position in plateau
       type: object
       required:
-        - latitude
         - longitude
+        - latitude
         - orientation
       properties:
-        latitude:
-          description: Latitude of mower
+        longitude:
+          description: Longitude of mower
           type: integer
           format: int32
           minimum: 1
           example: 1
-        longitude:
-          description: Longitude of mower
+        latitude:
+          description: Latitude of mower
           type: integer
           format: int32
           minimum: 1

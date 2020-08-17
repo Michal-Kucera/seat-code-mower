@@ -1,4 +1,4 @@
-package com.seat.code.service;
+package com.seat.code.service.plateau;
 
 import static java.lang.String.format;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 
 import com.seat.code.domain.entity.PlateauEntity;
 import com.seat.code.domain.repository.PlateauRepository;
-import com.seat.code.service.exception.PlateauNotFoundException;
 import com.seat.code.service.mapper.ServiceLayerMapper;
-import com.seat.code.service.model.Plateau;
+import com.seat.code.service.plateau.exception.PlateauNotFoundException;
+import com.seat.code.service.plateau.model.Plateau;
 
 @Service
 class PlateauServiceImpl implements PlateauService {

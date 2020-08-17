@@ -1,11 +1,16 @@
 package com.seat.code.util;
 
-import static com.seat.code.service.model.MowerOrientation.SOUTH;
+import static com.seat.code.service.mower.model.MowerInstruction.MOVE_FORWARD;
+import static com.seat.code.service.mower.model.MowerInstruction.SPIN_LEFT;
+import static com.seat.code.service.mower.model.MowerOrientation.SOUTH;
+import static java.util.Arrays.asList;
 
+import java.util.List;
 import java.util.UUID;
 
-import com.seat.code.service.model.Mower;
-import com.seat.code.service.model.Plateau;
+import com.seat.code.service.mower.model.Mower;
+import com.seat.code.service.mower.model.MowerInstruction;
+import com.seat.code.service.plateau.model.Plateau;
 
 public class TestServiceLayerObjectFactory {
 
@@ -39,5 +44,17 @@ public class TestServiceLayerObjectFactory {
         mower.setLongitude(longitude);
         mower.setOrientation(SOUTH);
         return mower;
+    }
+
+    public static List<MowerInstruction> buildMowerInstructions() {
+        return asList(SPIN_LEFT,
+            MOVE_FORWARD,
+            SPIN_LEFT,
+            MOVE_FORWARD,
+            SPIN_LEFT,
+            MOVE_FORWARD,
+            SPIN_LEFT,
+            MOVE_FORWARD,
+            MOVE_FORWARD);
     }
 }

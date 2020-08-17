@@ -1,9 +1,13 @@
 package com.seat.code.controller.mapper;
 
+import static com.seat.code.util.TestControllerLayerObjectFactory.buildMowerInstructions;
 import static com.seat.code.util.TestControllerLayerObjectFactory.buildRectangularPlateau;
 import static com.seat.code.util.TestServiceLayerObjectFactory.buildPlateau;
+import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -16,10 +20,11 @@ import com.seat.code.asserts.AssertMowerResponse;
 import com.seat.code.asserts.AssertPlateau;
 import com.seat.code.asserts.AssertRectangularPlateauDetail;
 import com.seat.code.controller.model.Mower;
+import com.seat.code.controller.model.MowerInstruction;
 import com.seat.code.controller.model.RectangularPlateau;
 import com.seat.code.controller.model.RectangularPlateauDetail;
-import com.seat.code.service.model.MowerOrientation;
-import com.seat.code.service.model.Plateau;
+import com.seat.code.service.mower.model.MowerOrientation;
+import com.seat.code.service.plateau.model.Plateau;
 import com.seat.code.util.TestControllerLayerObjectFactory;
 import com.seat.code.util.TestServiceLayerObjectFactory;
 
@@ -68,7 +73,7 @@ class ControllerLayerMapperTest {
         final UUID plateauId = UUID.randomUUID();
         final Mower mowerRequest = TestControllerLayerObjectFactory.buildMower();
 
-        final com.seat.code.service.model.Mower mower = underTest.mapToMower(plateauId, mowerRequest);
+        final com.seat.code.service.mower.model.Mower mower = underTest.mapToMower(plateauId, mowerRequest);
 
         AssertMower.assertThat(mower)
             .isNotNull()
@@ -82,7 +87,7 @@ class ControllerLayerMapperTest {
 
     @Test
     void mapToMowerResponse_shouldMapMowerIntoMowerResponse() {
-        final com.seat.code.service.model.Mower mower = TestServiceLayerObjectFactory.buildMower();
+        final com.seat.code.service.mower.model.Mower mower = TestServiceLayerObjectFactory.buildMower();
 
         final Mower mowerResponse = underTest.mapToMowerResponse(mower);
 
@@ -92,5 +97,19 @@ class ControllerLayerMapperTest {
             .hasLatitude(mower.getLatitude())
             .hasLongitude(mower.getLongitude())
             .hasOrientation(com.seat.code.controller.model.MowerOrientation.valueOf(mower.getOrientation().name()));
+    }
+
+    @Test
+    void mapToMowerInstructions_shouldMapMowerInstructionsRequestIntoMowerInstructions() {
+        final List<MowerInstruction> mowerInstructionsRequest = buildMowerInstructions();
+
+        final List<com.seat.code.service.mower.model.MowerInstruction> actualMowerInstructions = underTest.mapToMowerInstructions(mowerInstructionsRequest);
+
+        assertThat(actualMowerInstructions).hasSize(mowerInstructionsRequest.size());
+        final List<com.seat.code.service.mower.model.MowerInstruction> expectedMowerInstructions = mowerInstructionsRequest.stream()
+            .map(Enum::name)
+            .map(com.seat.code.service.mower.model.MowerInstruction::valueOf)
+            .collect(toList());
+        assertThat(actualMowerInstructions).containsExactlyElementsOf(expectedMowerInstructions);
     }
 }

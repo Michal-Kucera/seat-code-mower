@@ -1,4 +1,4 @@
-package com.seat.code.service.exception;
+package com.seat.code.service.mower.exception;
 
 /**
  * Mower's position is out of range of targeting plateau

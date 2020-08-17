@@ -1,5 +1,7 @@
 package com.seat.code.asserts;
 
+import java.util.UUID;
+
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
 import org.mockito.ArgumentCaptor;
@@ -27,8 +29,18 @@ public class AssertMowerEntity extends AbstractAssert<AssertMowerEntity, MowerEn
         return this;
     }
 
+    public AssertMowerEntity hasId(final UUID expectedId) {
+        Assertions.assertThat(actual.getId()).isEqualTo(expectedId);
+        return this;
+    }
+
     public AssertMowerEntity hasNullVersion() {
         Assertions.assertThat(actual.getVersion()).isNull();
+        return this;
+    }
+
+    public AssertMowerEntity hasVersion(final Integer expectedVersion) {
+        Assertions.assertThat(actual.getVersion()).isEqualTo(expectedVersion);
         return this;
     }
 

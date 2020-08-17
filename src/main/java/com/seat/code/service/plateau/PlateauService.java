@@ -1,9 +1,9 @@
-package com.seat.code.service;
+package com.seat.code.service.plateau;
 
 import java.util.UUID;
 
-import com.seat.code.service.exception.PlateauNotFoundException;
-import com.seat.code.service.model.Plateau;
+import com.seat.code.service.plateau.exception.PlateauNotFoundException;
+import com.seat.code.service.plateau.model.Plateau;
 
 public interface PlateauService {
 

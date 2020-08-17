@@ -54,6 +54,6 @@ public class TestDomainLayerObjectFactory {
     }
 
     public static MowerEntity buildMowerEntity(final PlateauEntity plateauEntity) {
-        return buildMowerEntity(plateauEntity, 5, 11);
+        return buildMowerEntity(plateauEntity, 1, 2);
     }
 }

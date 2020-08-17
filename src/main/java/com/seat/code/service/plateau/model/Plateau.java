@@ -1,4 +1,4 @@
-package com.seat.code.service.model;
+package com.seat.code.service.plateau.model;
 
 import static java.util.Objects.isNull;
 
