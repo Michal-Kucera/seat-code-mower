@@ -38,6 +38,11 @@ public class AssertMower extends AbstractAssert<AssertMower, Mower> {
         return this;
     }
 
+    public AssertMower hasNullPlateauId() {
+        Assertions.assertThat(actual.getPlateauId()).isNull();
+        return this;
+    }
+
     public AssertMower hasPlateauId(final UUID expectedPlateauId) {
         Assertions.assertThat(actual.getPlateauId()).isEqualTo(expectedPlateauId);
         return this;

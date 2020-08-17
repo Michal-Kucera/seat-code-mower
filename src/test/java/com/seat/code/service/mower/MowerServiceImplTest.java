@@ -55,18 +55,19 @@ class MowerServiceImplTest {
                                                                                                        final Integer plateauWidth,
                                                                                                        final Integer mowerLatitude,
                                                                                                        final Integer mowerLongitude) {
+        final UUID plateauId = UUID.randomUUID();
         final Mower mower = buildMower(mowerLatitude, mowerLongitude);
         final PlateauEntity plateauEntity = buildPlateauEntity(plateauLength, plateauWidth);
         final MowerEntity mowerEntityToStore = buildMowerEntity(plateauEntity);
         final MowerEntity storedMowerEntity = buildMowerEntity(plateauEntity);
 
-        when(plateauRepository.findById(mower.getPlateauId())).thenReturn(Optional.of(plateauEntity));
+        when(plateauRepository.findById(plateauId)).thenReturn(Optional.of(plateauEntity));
         when(serviceLayerMapper.mapToMowerEntity(mower, plateauEntity)).thenReturn(mowerEntityToStore);
         when(mowerRepository.save(mowerEntityToStore)).thenReturn(storedMowerEntity);
 
-        underTest.createMower(mower);
+        underTest.createMower(plateauId, mower);
 
-        verify(plateauRepository).findById(mower.getPlateauId());
+        verify(plateauRepository).findById(plateauId);
         verify(serviceLayerMapper).mapToMowerEntity(mower, plateauEntity);
         verify(mowerRepository).save(mowerEntityToStore);
         verifyNoMoreInteractions(plateauRepository, serviceLayerMapper, mowerRepository);
@@ -74,19 +75,20 @@ class MowerServiceImplTest {
 
     @Test
     void createMower_shouldReturnNewMowerId_whenMowerWasStoredIntoDatabase() {
+        final UUID plateauId = UUID.randomUUID();
         final Mower mower = buildMower();
         final PlateauEntity plateauEntity = buildPlateauEntity();
         final MowerEntity mowerEntityToStore = buildMowerEntity(plateauEntity);
         final MowerEntity storedMowerEntity = buildMowerEntity(plateauEntity);
 
-        when(plateauRepository.findById(mower.getPlateauId())).thenReturn(Optional.of(plateauEntity));
+        when(plateauRepository.findById(plateauId)).thenReturn(Optional.of(plateauEntity));
         when(serviceLayerMapper.mapToMowerEntity(mower, plateauEntity)).thenReturn(mowerEntityToStore);
         when(mowerRepository.save(mowerEntityToStore)).thenReturn(storedMowerEntity);
 
-        final UUID newMowerId = underTest.createMower(mower);
+        final UUID newMowerId = underTest.createMower(plateauId, mower);
 
         assertThat(newMowerId).isEqualTo(storedMowerEntity.getId());
-        verify(plateauRepository).findById(mower.getPlateauId());
+        verify(plateauRepository).findById(plateauId);
         verify(serviceLayerMapper).mapToMowerEntity(mower, plateauEntity);
         verify(mowerRepository).save(mowerEntityToStore);
         verifyNoMoreInteractions(plateauRepository, serviceLayerMapper, mowerRepository);
@@ -94,15 +96,16 @@ class MowerServiceImplTest {
 
     @Test
     void createMower_shouldThrowPlateauNotFoundException_whenPlateauNotFoundInDatabase() {
+        final UUID plateauId = UUID.randomUUID();
         final Mower mower = buildMower();
 
-        when(plateauRepository.findById(mower.getPlateauId())).thenReturn(Optional.empty());
+        when(plateauRepository.findById(plateauId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> underTest.createMower(mower))
+        assertThatThrownBy(() -> underTest.createMower(plateauId, mower))
             .isInstanceOf(PlateauNotFoundException.class)
-            .hasMessage("Plateau with ID: [%s] not found", mower.getPlateauId());
+            .hasMessage("Plateau with ID: [%s] not found", plateauId);
 
-        verify(plateauRepository).findById(mower.getPlateauId());
+        verify(plateauRepository).findById(plateauId);
         verifyNoMoreInteractions(plateauRepository);
         verifyNoInteractions(serviceLayerMapper, mowerRepository);
     }
@@ -113,22 +116,24 @@ class MowerServiceImplTest {
                                                                                                                 final Integer plateauWidth,
                                                                                                                 final Integer mowerLatitude,
                                                                                                                 final Integer mowerLongitude) {
+        final UUID plateauId = UUID.randomUUID();
         final Mower mower = buildMower(mowerLatitude, mowerLongitude);
         final PlateauEntity plateauEntity = buildPlateauEntity(plateauLength, plateauWidth);
 
-        when(plateauRepository.findById(mower.getPlateauId())).thenReturn(Optional.of(plateauEntity));
+        when(plateauRepository.findById(plateauId)).thenReturn(Optional.of(plateauEntity));
 
-        assertThatThrownBy(() -> underTest.createMower(mower))
+        assertThatThrownBy(() -> underTest.createMower(plateauId, mower))
             .isInstanceOf(MowerPositionOutOfRangeException.class)
             .hasMessage("Mower's position is out of range of plateau");
 
-        verify(plateauRepository).findById(mower.getPlateauId());
+        verify(plateauRepository).findById(plateauId);
         verifyNoMoreInteractions(plateauRepository);
         verifyNoInteractions(serviceLayerMapper, mowerRepository);
     }
 
     @Test
     void createMower_shouldThrowMowerPositionAlreadyTakenException_whenPlateauFoundInDatabaseButMowerIsTargetingTheSamePositionAsAlreadyExistingMowerInPlateau() {
+        final UUID plateauId = UUID.randomUUID();
         final PlateauEntity plateauEntity = buildPlateauEntity();
         plateauEntity.getMowers().clear();
         final Integer mowerLatitude = 3;
@@ -137,13 +142,13 @@ class MowerServiceImplTest {
         plateauEntity.getMowers().add(alreadyExistingMowerWithSamePosition);
         final Mower mower = buildMower(mowerLatitude, mowerLongitude);
 
-        when(plateauRepository.findById(mower.getPlateauId())).thenReturn(Optional.of(plateauEntity));
+        when(plateauRepository.findById(plateauId)).thenReturn(Optional.of(plateauEntity));
 
-        assertThatThrownBy(() -> underTest.createMower(mower))
+        assertThatThrownBy(() -> underTest.createMower(plateauId, mower))
             .isInstanceOf(MowerPositionAlreadyTakenException.class)
             .hasMessage("Mower's targeting position is already taken by another mower in plateau");
 
-        verify(plateauRepository).findById(mower.getPlateauId());
+        verify(plateauRepository).findById(plateauId);
         verifyNoMoreInteractions(plateauRepository);
         verifyNoInteractions(serviceLayerMapper, mowerRepository);
     }

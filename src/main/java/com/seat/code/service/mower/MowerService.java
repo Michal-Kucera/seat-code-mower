@@ -15,7 +15,7 @@ public interface MowerService {
      * @throws MowerPositionOutOfRangeException   Mower's position is out of range of targeting plateau
      * @throws MowerPositionAlreadyTakenException Another mower in the same plateau is already in targeting position
      */
-    UUID createMower(Mower mower);
+    UUID createMower(final UUID plateauId, Mower mower);
 
     /**
      * @throws MowerNotFoundException Mower not found in database

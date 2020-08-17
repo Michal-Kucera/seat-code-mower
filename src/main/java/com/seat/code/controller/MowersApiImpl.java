@@ -1,5 +1,6 @@
 package com.seat.code.controller;
 
+import static java.util.stream.Collectors.toList;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.created;
 import static org.springframework.http.ResponseEntity.noContent;
@@ -12,13 +13,13 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import org.springframework.core.convert.ConversionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.seat.code.controller.mapper.ControllerLayerMapper;
 import com.seat.code.controller.model.Mower;
 import com.seat.code.controller.model.MowerInstruction;
 import com.seat.code.service.mower.MowerService;
@@ -32,14 +33,14 @@ import io.swagger.annotations.ApiParam;
 @Api(value = "Mowers", tags = "Mowers", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
 class MowersApiImpl implements MowersApi {
 
-    private final ControllerLayerMapper controllerLayerMapper;
+    private final ConversionService conversionService;
     private final MowerService mowerService;
     private final MowerInstructionService mowerInstructionService;
 
-    MowersApiImpl(final ControllerLayerMapper controllerLayerMapper,
+    MowersApiImpl(final ConversionService conversionService,
                   final MowerService mowerService,
                   final MowerInstructionService mowerInstructionService) {
-        this.controllerLayerMapper = controllerLayerMapper;
+        this.conversionService = conversionService;
         this.mowerService = mowerService;
         this.mowerInstructionService = mowerInstructionService;
     }
@@ -47,8 +48,8 @@ class MowersApiImpl implements MowersApi {
     @Override
     public ResponseEntity<Void> createMower(@ApiParam(value = "Plateau's ID", required = true) @PathVariable("plateauId") final UUID plateauId,
                                             @ApiParam(value = "Create mower request body", required = true) @Valid @RequestBody final Mower createMowerRequest) {
-        final com.seat.code.service.mower.model.Mower mower = controllerLayerMapper.mapToMower(plateauId, createMowerRequest);
-        final UUID newMowerId = mowerService.createMower(mower);
+        final com.seat.code.service.mower.model.Mower mower = conversionService.convert(createMowerRequest, com.seat.code.service.mower.model.Mower.class);
+        final UUID newMowerId = mowerService.createMower(plateauId, mower);
         final URI locationHeaderValue = buildMowerLocationHeaderValue(newMowerId);
         return created(locationHeaderValue).build();
     }
@@ -57,14 +58,16 @@ class MowersApiImpl implements MowersApi {
     public ResponseEntity<Mower> getMower(@ApiParam(value = "Plateau's ID", required = true) @PathVariable("plateauId") final UUID plateauId,
                                           @ApiParam(value = "Mower's ID", required = true) @PathVariable("mowerId") final UUID mowerId) {
         final com.seat.code.service.mower.model.Mower mower = mowerService.getMower(plateauId, mowerId);
-        final Mower mowerResponse = controllerLayerMapper.mapToMowerResponse(mower);
+        final Mower mowerResponse = conversionService.convert(mower, Mower.class);
         return ok(mowerResponse);
     }
 
     @Override
     public ResponseEntity<Void> applyMowerInstructions(@ApiParam(value = "Plateau's ID", required = true) @PathVariable("plateauId") final UUID plateauId, @ApiParam(value = "Mower's ID", required = true) @PathVariable("mowerId") final UUID mowerId,
                                                        @ApiParam(value = "Mower instructions request body", required = true) @Valid @RequestBody final List<MowerInstruction> mowerInstructionRequest) {
-        final List<com.seat.code.service.mower.model.MowerInstruction> mowerInstructions = controllerLayerMapper.mapToMowerInstructions(mowerInstructionRequest);
+        final List<com.seat.code.service.mower.model.MowerInstruction> mowerInstructions = mowerInstructionRequest.stream()
+            .map(mowerInstruction -> conversionService.convert(mowerInstruction, com.seat.code.service.mower.model.MowerInstruction.class))
+            .collect(toList());
         mowerInstructionService.applyInstructionsToMower(mowerInstructions, plateauId, mowerId);
         return noContent().build();
     }

@@ -37,10 +37,10 @@ class MowerServiceImpl implements MowerService {
     }
 
     @Override
-    public UUID createMower(final Mower mower) {
-        logger.info("Creating mower with name: [{}], starting location: [{}, {}], orientation: [{}] in plateau with ID: [{}]", mower.getName(), mower.getLongitude(), mower.getLatitude(), mower.getOrientation(), mower.getPlateauId());
-        final PlateauEntity plateauEntity = plateauRepository.findById(mower.getPlateauId())
-            .orElseThrow(() -> new PlateauNotFoundException(format("Plateau with ID: [%s] not found", mower.getPlateauId())));
+    public UUID createMower(final UUID plateauId, final Mower mower) {
+        logger.info("Creating mower with name: [{}], starting location: [{}, {}], orientation: [{}] in plateau with ID: [{}]", mower.getName(), mower.getLongitude(), mower.getLatitude(), mower.getOrientation(), plateauId);
+        final PlateauEntity plateauEntity = plateauRepository.findById(plateauId)
+            .orElseThrow(() -> new PlateauNotFoundException(format("Plateau with ID: [%s] not found", plateauId)));
 
         if (!isMowerPositionInPlateauRange(mower, plateauEntity)) {
             throw new MowerPositionOutOfRangeException("Mower's position is out of range of plateau");

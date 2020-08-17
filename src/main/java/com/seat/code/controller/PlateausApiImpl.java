@@ -10,13 +10,13 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import org.springframework.core.convert.ConversionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.seat.code.controller.mapper.ControllerLayerMapper;
 import com.seat.code.controller.model.RectangularPlateau;
 import com.seat.code.controller.model.RectangularPlateauDetail;
 import com.seat.code.service.plateau.PlateauService;
@@ -30,18 +30,18 @@ import io.swagger.annotations.ApiParam;
 @Api(value = "Plateaus", tags = "Plateaus", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
 class PlateausApiImpl implements PlateausApi {
 
-    private final ControllerLayerMapper controllerLayerMapper;
+    private final ConversionService conversionService;
     private final PlateauService plateauService;
 
-    PlateausApiImpl(final ControllerLayerMapper controllerLayerMapper,
+    PlateausApiImpl(final ConversionService conversionService,
                     final PlateauService plateauService) {
-        this.controllerLayerMapper = controllerLayerMapper;
+        this.conversionService = conversionService;
         this.plateauService = plateauService;
     }
 
     @Override
     public ResponseEntity<Void> createPlateau(@ApiParam(value = "Create plateau request body", required = true) @Valid @RequestBody final RectangularPlateau createPlateauRequest) {
-        final Plateau plateau = controllerLayerMapper.mapToPlateau(createPlateauRequest);
+        final Plateau plateau = conversionService.convert(createPlateauRequest, Plateau.class);
         final UUID newPlateauId = plateauService.createPlateau(plateau);
         final URI locationHeaderValue = buildPlateauLocationHeaderValue(newPlateauId);
         return created(locationHeaderValue).build();
@@ -50,7 +50,7 @@ class PlateausApiImpl implements PlateausApi {
     @Override
     public ResponseEntity<RectangularPlateauDetail> getPlateau(@ApiParam(value = "Plateau's ID", required = true) @PathVariable("plateauId") final UUID plateauId) {
         final Plateau plateau = plateauService.getPlateau(plateauId);
-        final RectangularPlateauDetail plateauDetail = controllerLayerMapper.mapToPlateauDetailResponse(plateau);
+        final RectangularPlateauDetail plateauDetail = conversionService.convert(plateau, RectangularPlateauDetail.class);
         return ok(plateauDetail);
     }
 

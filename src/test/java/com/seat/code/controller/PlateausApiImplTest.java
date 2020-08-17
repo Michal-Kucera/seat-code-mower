@@ -8,6 +8,7 @@ import static io.restassured.RestAssured.baseURI;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -25,27 +26,27 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.seat.code.controller.mapper.ControllerLayerMapper;
 import com.seat.code.controller.model.RectangularPlateau;
 import com.seat.code.controller.model.RectangularPlateauDetail;
 import com.seat.code.service.plateau.PlateauService;
 import com.seat.code.service.plateau.model.Plateau;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(PlateausApiImpl.class)
 class PlateausApiImplTest {
 
     private static final String CREATE_PLATEAU_RESOURCE_PATH = "/v1/plateaus";
     private static final String GET_PLATEAU_RESOURCE_PATH = "/v1/plateaus/{plateauId}";
 
-    @MockBean
-    private ControllerLayerMapper controllerLayerMapper;
+    // if we use @MockBean, FormattingConversionService bean not found exception is appearing and so far there is no way to get rid of that
+    @SpyBean
+    private ConversionService conversionService;
 
     @MockBean
     private PlateauService plateauService;
@@ -59,7 +60,7 @@ class PlateausApiImplTest {
         final Plateau plateau = buildPlateau();
         final UUID newPlateauId = UUID.randomUUID();
 
-        when(controllerLayerMapper.mapToPlateau(rectangularPlateau)).thenReturn(plateau);
+        doReturn(plateau).when(conversionService).convert(rectangularPlateau, Plateau.class);
         when(plateauService.createPlateau(plateau)).thenReturn(newPlateauId);
 
         mockMvc.perform(post(CREATE_PLATEAU_RESOURCE_PATH)
@@ -67,9 +68,9 @@ class PlateausApiImplTest {
             .content(asJsonString(rectangularPlateau)))
             .andDo(print());
 
-        verify(controllerLayerMapper).mapToPlateau(rectangularPlateau);
+        verify(conversionService).convert(rectangularPlateau, Plateau.class);
         verify(plateauService).createPlateau(plateau);
-        verifyNoMoreInteractions(controllerLayerMapper, plateauService);
+        verifyNoMoreInteractions(conversionService, plateauService);
     }
 
     @Test
@@ -78,7 +79,7 @@ class PlateausApiImplTest {
         final Plateau plateau = buildPlateau();
         final UUID newPlateauId = UUID.randomUUID();
 
-        when(controllerLayerMapper.mapToPlateau(rectangularPlateau)).thenReturn(plateau);
+        doReturn(plateau).when(conversionService).convert(rectangularPlateau, Plateau.class);
         when(plateauService.createPlateau(plateau)).thenReturn(newPlateauId);
 
         mockMvc.perform(post(CREATE_PLATEAU_RESOURCE_PATH)
@@ -87,9 +88,9 @@ class PlateausApiImplTest {
             .andDo(print())
             .andExpect(status().isCreated());
 
-        verify(controllerLayerMapper).mapToPlateau(rectangularPlateau);
+        verify(conversionService).convert(rectangularPlateau, Plateau.class);
         verify(plateauService).createPlateau(plateau);
-        verifyNoMoreInteractions(controllerLayerMapper, plateauService);
+        verifyNoMoreInteractions(conversionService, plateauService);
     }
 
     @Test
@@ -98,7 +99,7 @@ class PlateausApiImplTest {
         final Plateau plateau = buildPlateau();
         final UUID newPlateauId = UUID.randomUUID();
 
-        when(controllerLayerMapper.mapToPlateau(rectangularPlateau)).thenReturn(plateau);
+        doReturn(plateau).when(conversionService).convert(rectangularPlateau, Plateau.class);
         when(plateauService.createPlateau(plateau)).thenReturn(newPlateauId);
 
         mockMvc.perform(post(CREATE_PLATEAU_RESOURCE_PATH)
@@ -107,9 +108,9 @@ class PlateausApiImplTest {
             .andDo(print())
             .andExpect(header().string(LOCATION, buildPlateauLocationHeaderValue(newPlateauId)));
 
-        verify(controllerLayerMapper).mapToPlateau(rectangularPlateau);
+        verify(conversionService).convert(rectangularPlateau, Plateau.class);
         verify(plateauService).createPlateau(plateau);
-        verifyNoMoreInteractions(controllerLayerMapper, plateauService);
+        verifyNoMoreInteractions(conversionService, plateauService);
     }
 
     @Test
@@ -119,7 +120,7 @@ class PlateausApiImplTest {
         final RectangularPlateauDetail rectangularPlateauDetail = buildRectangularPlateauDetail();
 
         when(plateauService.getPlateau(plateauId)).thenReturn(plateau);
-        when(controllerLayerMapper.mapToPlateauDetailResponse(plateau)).thenReturn(rectangularPlateauDetail);
+        doReturn(rectangularPlateauDetail).when(conversionService).convert(plateau, RectangularPlateauDetail.class);
 
         mockMvc.perform(get(GET_PLATEAU_RESOURCE_PATH, plateauId)
             .accept(APPLICATION_JSON_VALUE))
@@ -135,8 +136,8 @@ class PlateausApiImplTest {
                 rectangularPlateauDetail.getMowers().get(3).toString())));
 
         verify(plateauService).getPlateau(plateauId);
-        verify(controllerLayerMapper).mapToPlateauDetailResponse(plateau);
-        verifyNoMoreInteractions(plateauService, controllerLayerMapper);
+        verify(conversionService).convert(plateau, RectangularPlateauDetail.class);
+        verifyNoMoreInteractions(plateauService);
     }
 
     private String buildPlateauLocationHeaderValue(final UUID newPlateauId) {
