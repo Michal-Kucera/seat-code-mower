@@ -1,6 +1,6 @@
 # 1 - Seat: Code Mower
 This repository contains code for solving the technical challenge for SEAT:CODE's Backend Developer position.
-Please check out [this document](SEAT_CODE Backend Code Challenge.pdf) for more info.
+Please check out [this document](SEAT_CODE%20Backend%20Code%20Challenge.pdf) for more info.
 
 # 2 - My thoughts on the challenge
 While analyzing the challenge I found out that there is a couple of operations needed to accomplish the goal:
@@ -21,7 +21,7 @@ is responsible for generating API data model in
 [build/generated/sources/open-api/java](build/generated/sources/open-api/java) directory).
 
 As a next step I defined the data model we want to store under a database (check out [Database](#4---database) section)
-and then I started implementing the business logic for each endpoint (check out [Business validation](#5---api-business-validations) section
+and then I started implementing the business logic for each endpoint (check out [API business validation](#5---api-business-validations) section
 for more info about business logic validations), while I tried to benefit from TDD methodology.
 
 On the top of the application I put [Open API UI](https://github.com/springfox/springfox) to provide 
@@ -140,7 +140,7 @@ please check out [API business validations](#5---api-business-validations) secti
 Once the application is up and running, we can access the Open API UI [here](http://localhost:8080/swagger-ui/index.html) 
 and test our endpoints in a super easy way.
 
-## 6.2 - Sample testing with data from first test case scenario in attached PDF
+## 6.2 - Sample testing with data from first test case scenario in attached [PDF](SEAT_CODE%20Backend%20Code%20Challenge.pdf)
 ### 6.2.1 - Creating a plateau in `5x5` size:
 - request:
     ```
